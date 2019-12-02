@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FileFunction.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tchar_head.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TControl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TEdit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TTransfer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="String.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TCheckBox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TButton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TProgress.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TWindow.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TTabControl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TStatic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\multiple.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RSA\RSA.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="DES\des.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ScopeTime.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileFunction.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TControl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TEdit.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TTransfer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="String.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TCheckBox.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TButton.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TProgress.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TTabControl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TStatic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RSA\multiple.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RSA\RSA.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DES\des.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resource\icon.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Encrypt.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
