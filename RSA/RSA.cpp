@@ -134,6 +134,7 @@ bignum* RSA::encode(int len, char* message)
 
 //将 message 编码后保存至 fp
 //需提前保证 len 是 maxBlockBytes 的整数倍
+//写入数量：encodedBlockSize
 void RSA::encodeToFile(FILE *fp,int len, unsigned char* message)
 {
 	checkPublicKey();

@@ -1,5 +1,6 @@
 #include "des.h"
 
+
 #ifdef _DEBUG
 
 #include <stdio.h>
@@ -195,6 +196,7 @@ uint64_t SBox(uint64_t B)
 		//uc去头尾4位组成列号 0-15
 		unsigned char j = uc >> 1 & 0x0F;
 
+		//查SBOX
 		uint64_t s = S[k][i][j];
 
 		//拼出S
@@ -203,6 +205,7 @@ uint64_t SBox(uint64_t B)
 	return ret;
 }
 
+//加解密为同一函数，仅使用K顺序不同
 uint64_t Do(uint64_t plain, uint64_t key, int encrypt)
 {
 	//PC-1
@@ -309,13 +312,14 @@ void EncryptData(unsigned char* plain, size_t len, unsigned char* remain_buf, si
 	size_t block = len / 8;
 	*remain_len = len % 8;
 
-	union charTo64 ct;
-	for (int i = 0; i < block; ++i)
+	uint64_t* u = (uint64_t*)plain;
+	while (block--)
 	{
-		memcpy_s(ct.s, 8, plain + i * 8, 8);
-		ct.u = Encrypt(ct.u, key);
-		memcpy_s(plain + i * 8, 8, ct.s, 8);
+		*u = Encrypt(*u, key);
+		u++;
 	}
+
+	union charTo64 ct;
 
 	if (*remain_len > 0)
 	{
@@ -331,11 +335,10 @@ void DecryptData(unsigned char* plain, size_t len,  uint64_t key)
 {
 	size_t block = len / 8;
 
-	union charTo64 ct;
-	for (int i = 0; i < block; ++i)
+	uint64_t* u = (uint64_t*)plain;
+	while (block--)
 	{
-		memcpy_s(ct.s, 8, plain + i * 8, 8);
-		ct.u = Decrypt(ct.u, key);
-		memcpy_s(plain + i * 8, 8, ct.s, 8);
+		*u = Decrypt(*u, key);
+		u++;
 	}
 }
