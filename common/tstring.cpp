@@ -1,4 +1,4 @@
-#include "String.h"
+#include "tstring.h"
 
 std::wstring stringToWstring(const std::string& str)
 {

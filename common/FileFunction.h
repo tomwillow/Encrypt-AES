@@ -1,7 +1,6 @@
 #pragma once
-#include "tchar_head.h"
 
-#include <string>
+#include "tstring.h"
 #include <vector>
 #include <Windows.h>
 
@@ -52,13 +51,13 @@ public:
 		ofn.lpstrFilter = szFilter;//两个\0表示结束
 	}
 
-	void SetTitle(std::string title)
+	void SetTitle(tstring title)
 	{
 		_tcscpy_s(szTitle, title.length() + 1, title.c_str());
 		ofn.lpstrFileTitle = szTitle;
 	}
 
-	bool Open(std::string& fileName)
+	bool Open(tstring& fileName)
 	{
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;//限定文件必须存在
 		if (::GetOpenFileName(&ofn))
@@ -69,17 +68,17 @@ public:
 		return false;
 	}
 
-	void SetszFile(const std::string &s)
+	void SetszFile(const tstring &s)
 	{
 		_tcscpy_s(szFile, s.c_str());
 	}
 
-	std::string GetszFile()
+	tstring GetszFile()
 	{
-		return std::string(szFile);
+		return tstring(szFile);
 	}
 
-	bool Save(std::string& fileName)
+	bool Save(tstring& fileName)
 	{
 		ofn.Flags = OFN_PATHMUSTEXIST;
 

@@ -102,12 +102,12 @@ void TControl::SetPosition(RECT rect)
 	//::SetWindowPos(m_hWnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0);//SWP_SHOWWINDOW
 }
 
-vector<string> TControl::PreDrop(WPARAM wParam) const
+vector<tstring> TControl::PreDrop(WPARAM wParam) const
 {
-	vector<string> ret;
+	vector<tstring> ret;
 	HDROP hDrop = (HDROP)wParam;
 	UINT nFileNum = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0); // 拖拽文件个数
-	char strFileName[MAX_PATH];
+	TCHAR strFileName[MAX_PATH];
 	for (int i = 0; i < nFileNum; i++)
 	{
 		DragQueryFile(hDrop, i, strFileName, MAX_PATH);//获得拖曳的文件名
@@ -117,7 +117,7 @@ vector<string> TControl::PreDrop(WPARAM wParam) const
 	return ret;
 }
 
-void TControl::DropProc(const std::vector<std::string>& dropFiles)
+void TControl::DropProc(const std::vector<tstring>& dropFiles)
 {
 
 }
@@ -137,7 +137,7 @@ LRESULT CALLBACK TControl::subControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 	{
 		if (uMsg == WM_DROPFILES)
 		{
-			vector<string> dropFiles=pControl->PreDrop(wParam);
+			vector<tstring> dropFiles=pControl->PreDrop(wParam);
 			pControl->DropProc(dropFiles);
 		}
 		else
@@ -241,7 +241,7 @@ void TControl::SetFont(TCHAR FontName[], int FontSize)
 	SetFont(m_hFont);
 }
 
-void TControl::SetText(const String &s)
+void TControl::SetText(const tstring &s)
 {
 	::SetWindowText(m_hWnd, s.c_str());
 }
@@ -263,7 +263,7 @@ void TControl::GetText(TCHAR text[])
 	::GetWindowText(m_hWnd, text, GetLength() + 1);//不知道为什么要加1才取得全
 }
 
-string TControl::GetText()
+tstring TControl::GetText()
 {
 	return GetTCHAR();
 }

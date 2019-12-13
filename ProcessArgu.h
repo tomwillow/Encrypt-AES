@@ -8,24 +8,22 @@
 #include <vector>
 #include "ScopeTime.h"
 
-extern void FreshEdit2(TCheckBox& CheckBox, TDropEdit& Edit2, TButton& BtnDialog2);
-
 class ProcessArgu
 {
 private:
 	const TCHAR* AppTitle;
 	HWND hDlg;
 	TProgress* pProgress;
-	TCheckBox* pCheckBox;
-	TDropEdit* pEdit2;
-	TButton* pBtnDialog2, * pBtnConvert;
-	string sBtnConvert;
+	TButton* pBtnConvert;
+	tstring sBtnConvert;
 	std::vector<TControl*> vechShouldDisable;
 public:
 	ScopeTime st;
 	bool encrypt;
-	string fileName1, fileName2, keyFileName;
-	string desKey;
+	tstring fileName1, fileName2;
+	tstring key;
+	tstring iv;
+	bool quick;
 	FILE* fpp1, * fpp2;
 	bool success;
 	long dealBytes;
@@ -33,16 +31,16 @@ public:
 	ProcessArgu(const ProcessArgu&) = delete;
 	ProcessArgu(const TCHAR AppTitle[],
 		bool encrypt,
-		string fileName1, string fileName2, string keyFileName,
-		string desKey,
+		tstring fileName1, tstring fileName2,
+		tstring key, tstring iv,bool quick,
 		HWND hDlg, TProgress* pProgress,
-		TCheckBox* pCheckBox, TDropEdit* pEdit2, TButton* pBtnDialog2, TButton* pBtnConvert,
+		 TButton* pBtnConvert,
 		const std::initializer_list<TControl*>& vechShouldDisable) :
 		AppTitle(AppTitle),
-		encrypt(encrypt), fileName1(fileName1), fileName2(fileName2), keyFileName(keyFileName),
-		desKey(desKey),
+		encrypt(encrypt), fileName1(fileName1), fileName2(fileName2),
+		key(key),iv(iv),quick(quick),
 		hDlg(hDlg), pProgress(pProgress),
-		pCheckBox(pCheckBox), pEdit2(pEdit2), pBtnDialog2(pBtnDialog2), pBtnConvert(pBtnConvert),
+		pBtnConvert(pBtnConvert),
 		vechShouldDisable(vechShouldDisable)
 	{
 		fpp1 = nullptr;
@@ -70,8 +68,6 @@ public:
 		for (auto h : vechShouldDisable)
 			h->SetEnable(true);
 
-		FreshEdit2(*pCheckBox, *pEdit2, *pBtnDialog2);
-
 		pBtnConvert->SetText(sBtnConvert);
 
 		//设置完成状态并弹窗
@@ -79,7 +75,7 @@ public:
 		{
 			double velocityKBperS = (dealBytes) / 1024.0 / (st.elapsedMilliseconds() / 1000.0);
 			TCHAR caption[MAX_PATH];
-			sprintf_s(caption,MAX_PATH, TEXT("处理完成。\n时间：%s\n速度：%.0f KB/s"), st.elapsed().c_str(), velocityKBperS);
+			_stprintf_s(caption,MAX_PATH, TEXT("处理完成。\n时间：%s\n速度：%.0f KB/s"), st.elapsed().c_str(), velocityKBperS);
 			pProgress->SetPos(100);
 			MessageBox(hDlg, caption, TEXT(""), MB_OK | MB_ICONINFORMATION);
 
@@ -91,11 +87,11 @@ public:
 	void SetProgress(int per, double velocityKBperS, double remainSecond)
 	{
 		pProgress->SetPos(per);
-		string sPercent = to_string(per) + "%";
+		tstring sPercent = tto_string(per) + TCHAR("%");
 		pBtnConvert->SetText(sPercent);
 
 		TCHAR title[MAX_PATH];
-		sprintf_s(title, MAX_PATH, "%s 速度:%.0f KB/s 当前:%d%% 预计剩余:%.2f s", AppTitle, velocityKBperS, per, remainSecond);
+		_stprintf_s(title, MAX_PATH, TEXT("%s 速度:%.0f KB/s 当前:%d%% 预计剩余:%.2f s"), AppTitle, velocityKBperS, per, remainSecond);
 		SetWindowText(hDlg, title);
 	};
 	friend void DealProc(void* p);

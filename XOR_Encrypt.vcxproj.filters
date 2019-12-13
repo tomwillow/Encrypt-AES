@@ -18,58 +18,49 @@
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FileFunction.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="tchar_head.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TControl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TEdit.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TTransfer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="String.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TCheckBox.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TButton.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TProgress.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TWindow.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TTabControl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TStatic.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="RSA\multiple.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="RSA\RSA.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="DES\des.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ScopeTime.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="TDropEdit.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="ProcessArgu.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\TButton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\TCheckBox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\TControl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\TDropEdit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\TEdit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\TProgress.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\TStatic.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\TTabControl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\FileFunction.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\tchar_head.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\TTransfer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\ScopeTime.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\tstring.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Control\TComboBox.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -77,52 +68,43 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FileFunction.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TControl.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TEdit.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TTransfer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="String.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TCheckBox.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TButton.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TProgress.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TWindow.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TTabControl.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TStatic.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="RSA\multiple.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="RSA\RSA.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="DES\des.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="ProcessArgu.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TDropEdit.cpp">
+    <ClCompile Include="Control\TButton.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\TCheckBox.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\TControl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\TDropEdit.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\TEdit.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\TProgress.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\TStatic.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\TTabControl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="common\FileFunction.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="common\TTransfer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="common\tstring.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Control\TComboBox.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

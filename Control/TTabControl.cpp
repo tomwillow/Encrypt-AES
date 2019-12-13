@@ -16,7 +16,7 @@ void TTabControl::SetRectAsParent()
 	SetRect(rc);
 }
 
-void TTabControl::AddTabItem(std::string label, std::initializer_list<TControl*> vecp)
+void TTabControl::AddTabItem(tstring label, std::initializer_list<TControl*> vecp)
 {
 	TCITEM tabItem;
 	ZeroMemory(&tabItem, sizeof(TCITEM));

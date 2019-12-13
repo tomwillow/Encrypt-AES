@@ -1,9 +1,8 @@
 #pragma once
 #include <Windows.h>
 #include <vector>
-#include <string>
 #include <unordered_map>
-#include "String.h"
+#include "tstring.h"
 
 class TControl
 {
@@ -13,7 +12,7 @@ private:
 	HFONT m_hFont;
 	static LRESULT CALLBACK subControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	std::vector<std::string> PreDrop(WPARAM wParam) const;
+	std::vector<tstring> PreDrop(WPARAM wParam) const;
 public:
 	//LONG m_iWidth, m_iHeight;
 	TControl();
@@ -38,11 +37,11 @@ public:
 	void SetDefaultGuiFont();
 	void SetFont(TCHAR FontName[], int FontSize);
 
-	void SetText(const String &s);
+	void SetText(const tstring &s);
 	void CDECL SetText(const TCHAR szFormat[], ...);//设置内容
 	void GetText(TCHAR text[]);
 	TCHAR* GetTCHAR();//返回值由TControl自己负责释放
-	std::string GetText();
+	tstring GetText();
 	int GetLength();//获取字符串长度	
 
 	RECT GetPosition() const;
@@ -73,5 +72,5 @@ protected:
 
 	virtual LRESULT WndProc(WNDPROC wndproc, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);//虚拟消息处理函数，可覆盖
 
-	virtual void DropProc(const std::vector<std::string>& dropFiles);
+	virtual void DropProc(const std::vector<tstring>& dropFiles);
 };

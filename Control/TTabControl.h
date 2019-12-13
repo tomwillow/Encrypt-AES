@@ -16,7 +16,7 @@ public:
 
 	void SetRectAsParent();
 
-	void AddTabItem(std::string label, std::initializer_list<TControl*> vecp = {});
+	void AddTabItem(tstring label, std::initializer_list<TControl*> vecp = {});
 
 	void TakeOverControl(int page, std::initializer_list<TControl*> vecp);
 

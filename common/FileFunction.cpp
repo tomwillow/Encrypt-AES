@@ -10,7 +10,7 @@ bool GetCommandLineByIndex(int index, TCHAR *assigned)
 	int len = _tcslen(GetCommandLine());
 	TCHAR *origin = new TCHAR[len + 1];
 	TCHAR *s = origin;
-	_tcscpy(s, GetCommandLine());
+	_tcscpy_s(s,len, GetCommandLine());
 	bool inchar = false;
 	TCHAR *start=nullptr, *end=nullptr;
 	while ((s = _tcschr(s, TEXT('\"'))) != NULL)
@@ -27,7 +27,7 @@ bool GetCommandLineByIndex(int index, TCHAR *assigned)
 			iCmdLineCount++;
 			if (iCmdLineCount == index)
 			{
-				_tcsncpy(assigned, start, end - start);
+				_tcsncpy_s(assigned,end-start, start, end - start);
 				assigned[end - start] = TEXT('\0');
 				break;
 			}

@@ -6,7 +6,7 @@
 class TDropEdit :public TEdit
 {
 protected:
-	void DropProc(const std::vector<std::string>& dropFiles)override
+	void DropProc(const std::vector<tstring>& dropFiles)override
 	{
 		if (dropFiles.size() == 1)
 			this->SetText(dropFiles[0]);

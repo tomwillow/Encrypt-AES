@@ -13,58 +13,58 @@ using std::endl;
 #ifdef _UNICODE
 
 using std::wstring;
-#define String wstring
+#define tstring wstring
 
 using std::wostream;
-#define Ostream wostream
+#define tostream wostream
 
 using std::wifstream;
-#define Ifstream wifstream
+#define tifstream wifstream
 
 using std::wofstream;
-#define Ofstream wofstream
+#define tofstream wofstream
 
 using std::wistringstream;
-#define Istringstream wistringstream
+#define tistringstream wistringstream
 
 using std::wostringstream;
-#define Ostringstream wostringstream
+#define tostringstream wostringstream
 
 using std::wcout;
-#define COUT wcout
+#define tcout wcout
 
 using std::to_wstring;
-#define To_string to_wstring
+#define tto_string to_wstring
 
 #else
 
 using std::string;
-#define String string
+#define tstring string
 
 using std::ostream;
-#define Ostream ostream
+#define tostream ostream
 
 using std::ifstream;
-#define Ifstream ifstream
+#define tifstream ifstream
 
 using std::ofstream;
-#define Ofstream ofstream
+#define tofstream ofstream
 
 using std::istringstream;
-#define Istringstream istringstream
+#define tistringstream istringstream
 
 using std::ostringstream;
-#define Ostringstream ostringstream
+#define tostringstream ostringstream
 
 using std::cout;
-#define COUT cout
+#define tcout cout
 
 using std::to_string;
-#define To_string to_string
+#define tto_string to_string
 
 #endif
 
-inline String & operator<<(String &s, double d)
+inline tstring & operator<<(tstring &s, double d)
 {
 	TCHAR temp[32];
 	_stprintf_s(temp, TEXT("%f"), d);
@@ -72,7 +72,7 @@ inline String & operator<<(String &s, double d)
 	return s;
 }
 
-inline String & operator<<(String &s, size_t i)
+inline tstring & operator<<(tstring &s, size_t i)
 {
 	TCHAR temp[32];
 #ifdef _UNICODE
@@ -84,7 +84,7 @@ inline String & operator<<(String &s, size_t i)
 	return s;
 }
 
-inline String & operator<<(String &s, int i)
+inline tstring & operator<<(tstring &s, int i)
 {
 	TCHAR temp[32];
 #ifdef _UNICODE
@@ -96,13 +96,13 @@ inline String & operator<<(String &s, int i)
 	return s;
 }
 
-inline String & operator<<(String &s, TCHAR szStr[])
+inline tstring & operator<<(tstring &s, TCHAR szStr[])
 {
 	s += szStr;
 	return s;
 }
 
-inline String & operator<<(String &s,const String &s2)
+inline tstring & operator<<(tstring &s,const tstring &s2)
 {
 	s += s2;
 	return s;

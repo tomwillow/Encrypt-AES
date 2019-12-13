@@ -20,17 +20,16 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{4C137550-4D09-42DF-AFAA-6AF1F67A2984}</ProjectGuid>
-    <RootNamespace>XOREncrypt</RootNamespace>
+    <ProjectGuid>{5192B5BA-24BF-468A-8AD9-E9B568F00074}</ProjectGuid>
+    <RootNamespace>AES</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Encrypt</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -70,9 +69,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>aes;common;control;$(IncludePath)</IncludePath>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -81,7 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -90,10 +87,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -106,7 +102,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
@@ -119,53 +115,25 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="common\FileFunction.h" />
-    <ClInclude Include="ProcessArgu.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="common\ScopeTime.h" />
-    <ClInclude Include="common\tstring.h" />
-    <ClInclude Include="Control\TButton.h" />
-    <ClInclude Include="common\tchar_head.h" />
-    <ClInclude Include="Control\TCheckBox.h" />
-    <ClInclude Include="Control\TControl.h" />
-    <ClInclude Include="Control\TDropEdit.h" />
-    <ClInclude Include="Control\TEdit.h" />
-    <ClInclude Include="Control\TProgress.h" />
-    <ClInclude Include="Control\TStatic.h" />
-    <ClInclude Include="Control\TTabControl.h" />
-    <ClInclude Include="common\TTransfer.h" />
-    <ClInclude Include="Control\TComboBox.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Encrypt.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="common\FileFunction.cpp" />
+    <ClCompile Include="gmult.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ProcessArgu.cpp" />
-    <ClCompile Include="common\tstring.cpp" />
-    <ClCompile Include="Control\TButton.cpp" />
-    <ClCompile Include="Control\TCheckBox.cpp" />
-    <ClCompile Include="Control\TControl.cpp" />
-    <ClCompile Include="Control\TDropEdit.cpp" />
-    <ClCompile Include="Control\TEdit.cpp" />
-    <ClCompile Include="Control\TProgress.cpp" />
-    <ClCompile Include="Control\TStatic.cpp" />
-    <ClCompile Include="Control\TTabControl.cpp" />
-    <ClCompile Include="common\TTransfer.cpp" />
-    <ClCompile Include="Control\TComboBox.cpp" />
+    <ClCompile Include="MyAES.cpp" />
+    <ClCompile Include="MyAESQuick.cpp" />
+    <ClCompile Include="Test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resource\icon.ico" />
+    <ClInclude Include="gmult.h" />
+    <ClInclude Include="MyAES.h" />
+    <ClInclude Include="MyAESQuick.h" />
+    <ClInclude Include="ScopeTime.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
