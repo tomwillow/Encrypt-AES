@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "tstring.h"
 #include <vector>
@@ -34,71 +34,24 @@ public:
 		SetFilter(vecFilter);
 	}
 
-	void SetFilter(std::vector<std::pair<std::string, std::string>> vecFilter)
-	{
-		//lpstrFilter¸ñÊ½£ºTEXT("»ú¹¹Éè¼ÆÎÄ¼ş(*.lml)\0*.lml\0\0")
-		int i = 0;
-		for (auto& pr : vecFilter)
-		{
-			for (auto c : pr.first)
-				szFilter[i++] = c;
-			szFilter[i++] = 0;
-			for (auto c : pr.second)
-				szFilter[i++] = c;
-			szFilter[i++] = 0;
-		}
-		szFilter[i++] = 0;
-		ofn.lpstrFilter = szFilter;//Á½¸ö\0±íÊ¾½áÊø
-	}
+	void SetFilter(std::vector<std::pair<std::string, std::string>> vecFilter);
 
-	void SetTitle(tstring title)
-	{
-		_tcscpy_s(szTitle, title.length() + 1, title.c_str());
-		ofn.lpstrFileTitle = szTitle;
-	}
+	void SetTitle(std::tstring title);
 
-	bool Open(tstring& fileName)
-	{
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;//ÏŞ¶¨ÎÄ¼ş±ØĞë´æÔÚ
-		if (::GetOpenFileName(&ofn))
-		{
-			fileName = ofn.lpstrFile;
-			return true;
-		}
-		return false;
-	}
+	bool Open(std::tstring& fileName);
 
-	void SetszFile(const tstring &s)
-	{
-		_tcscpy_s(szFile, s.c_str());
-	}
+	void SetszFile(const std::tstring& s);
 
-	tstring GetszFile()
-	{
-		return tstring(szFile);
-	}
+	std::tstring GetszFile();
 
-	bool Save(tstring& fileName)
-	{
-		ofn.Flags = OFN_PATHMUSTEXIST;
-
-		//ÉèÎª¿Õ¿ÉÒÔ×Ô¶¯¼ÓÉÏÑ¡ÔñµÄºó×ºÃû£¬·ñÔòÎŞÂÛÑ¡Ê²Ã´ºó×º£¬
-		//Ö»ÒªÃ»ÓĞÊäÈë.txtÕâÖÖ£¬¶¼ÊÇÎŞºó×º
-		ofn.lpstrDefExt = TEXT(""); 
-		if (::GetSaveFileName(&ofn))
-		{
-			fileName = ofn.lpstrFile;
-			return true;
-		}
-		return false;
-	}
+	bool Save(std::tstring& fileName);
 };
 
-//´«Èëindex=1ÔòµÃµ½´«ÈëÎÄ¼şÃû
-//³É¹¦È¡µÃ·µ»Øtrue 
+//ä¼ å…¥index=1åˆ™å¾—åˆ°ä¼ å…¥æ–‡ä»¶å
+//æˆåŠŸå–å¾—è¿”å›true 
 bool GetCommandLineByIndex(int index, TCHAR* assigned);
 
-//ÅĞ¶ÏÎÄ¼şÊÇ·ñ´æÔÚ
+//åˆ¤æ–­æ–‡ä»¶æ˜¯å¦å­˜åœ¨
 bool GetFileExists(const TCHAR filename[]);
 
 std::vector<std::string> SplitPath(const std::string& s);

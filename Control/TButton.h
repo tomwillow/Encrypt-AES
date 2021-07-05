@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "TControl.h"
 class TButton :
 	public TControl

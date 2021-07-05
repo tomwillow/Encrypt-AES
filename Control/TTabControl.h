@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "TControl.h"
 #include <vector>
 #include <string>
@@ -16,7 +16,7 @@ public:
 
 	void SetRectAsParent();
 
-	void AddTabItem(tstring label, std::initializer_list<TControl*> vecp = {});
+	void AddTabItem(std::tstring label, std::initializer_list<TControl*> vecp = {});
 
 	void TakeOverControl(int page, std::initializer_list<TControl*> vecp);
 

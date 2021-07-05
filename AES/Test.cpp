@@ -1,11 +1,11 @@
-
+﻿
 #include <iostream>
 #include <string>
 #include <vector>
 #include <thread>
 #include <assert.h>
 
-#include "ScopeTime.h"
+#include "../common/ScopeTime.h"
 #include "MyAES.h"
 #include "MyAESQuick.h"
 

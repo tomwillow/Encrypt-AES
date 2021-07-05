@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "TEdit.h"
 
 #include <CommCtrl.h>

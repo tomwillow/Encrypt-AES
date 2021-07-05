@@ -1,4 +1,4 @@
-#include "MyAES.h"
+﻿#include "MyAES.h"
 
 #include <random>
 #include <bitset>
@@ -268,14 +268,14 @@ size_t MyAES::Encrypt(uint8_t plain[], size_t len)
 	{
 	case ECB:
 	{
-		//�����������ݣ�������
+		//对于整块数据，逐块加密
 		for (size_t i = 0; i < block; ++i)
 		{
 			EncryptBlock(plain + i * blockSize);
 		}
 
-		//ʣ�ಿ�֣�����0�������plain��Ƭ����
-		//����remain_buf���м���
+		//剩余部分，先填0，再填充plain碎片部分
+		//最后对remain_buf进行加密
 		if (remain_len)
 		{
 			memset(remain_buf, 0, blockSize); //padding 0
@@ -286,18 +286,18 @@ size_t MyAES::Encrypt(uint8_t plain[], size_t len)
 	}
 	case CBC:
 	{
-		for (int i = 0; i < block; ++i)
+		for (size_t i = 0; i < block; ++i)
 		{
 			//XOR with iv
 			for (int n = 0; n < blockSize; ++n)
-				plain[n] ^= iv[n];
-			EncryptBlock(plain + i * block);
+				(plain+i*blockSize)[n] ^= iv[n];
+			EncryptBlock(plain + i * blockSize);
 
-			//����ivΪ��ǰencrypted block
-			memcpy(iv, plain + i * block, blockSize);
+			//设置iv为当前encrypted block
+			memcpy(iv, plain + i * blockSize, blockSize);
 		}
 
-		//����ʣ�ಿ�֣���remain_buf����ȫ����iv����ټ���
+		//对于剩余部分，将remain_buf填充后，全部与前一个块异或，再加密
 		if (remain_len)
 		{
 			memset(remain_buf, 0, blockSize); //padding 0
@@ -310,48 +310,47 @@ size_t MyAES::Encrypt(uint8_t plain[], size_t len)
 	}
 	case CTR:
 	{
-		//counter���ڼ�¼���ţ�������ܹ����в������飬
-		//ֻҪĩβ��Ƭ�����˼�Ⲣд�룬ĩβ����Ƭ���Դ��б�š�
-		//�������ܹ����еĿ�����Ȼ������
-		static size_t counter = 0;
+		//counter用于记录块编号，就算加密过程中不是整块，
+		//只要末尾碎片进行了检测并写入，末尾的碎片就仍带有编号。
+		//这样解密过程中的块编号仍然连续。
+		size_t counter = 0;
 		std::default_random_engine e;
 		for (size_t i = 0; i < block; ++i,++counter)
 		{
-			//���������random engine�õ�counter
-			e.seed(counter);
+			//将序号送入random engine得到counter
+			e.seed((uint32_t)counter);
 
-			//����iv���ڴ洢counter
+			//借用iv用于存储counter
 			uint32_t* p64 = (uint32_t*)iv;
 			p64[0] = e();
 			p64[1] = e();
 			p64[2] = e();
 			p64[3] = e();
 
-			//
+			//加密
 			EncryptBlock(iv);
 
 			for (int j = 0; j < blockSize; ++j)
 				plain[i * blockSize + j] ^= iv[j];
 		}
 
-		//����ʣ�ಿ�֣���remain_buf���
+		//对于剩余部分，将remain_buf填充后与加密后的counter进行异或
 		if (remain_len)
 		{
 			memset(remain_buf, 0, blockSize); //padding 0
 			memcpy(remain_buf, plain + block * blockSize, remain_len);
 
-			//���������random engine�õ�counter
-			counter++;
-			e.seed(counter);
+			//将序号送入random engine得到counter
+			e.seed((uint32_t)counter);
 
-			//����iv���ڴ洢counter
+			//借用iv用于存储counter
 			uint32_t* p64 = (uint32_t*)iv;
 			p64[0] = e();
 			p64[1] = e();
 			p64[2] = e();
 			p64[3] = e();
 
-			//
+			//加密
 			EncryptBlock(iv);
 
 			for (int j = 0; j < blockSize; ++j)
@@ -365,28 +364,28 @@ size_t MyAES::Encrypt(uint8_t plain[], size_t len)
 		for (size_t i = 0; i < len; ++i)
 		{
 			bitset<8> p(plain[i]);
-			//����ÿ�ֽڣ���λ���д���
+			//对于每字节，逐位进行处理
 			for (size_t j = 0; j < 8; ++j)
 			{
 				EncryptBlock(iv);
 
-				//p��ǰλ��iv���λ���
+				//p当前位与iv最高位异或
 				p[j] = p[j] ^ (iv[0] >> 7);
 
-				//iv����1λ
+				//iv左移1位
 				for (int i = 0; i < 15; ++i)
 				{
 					iv[i] <<= 1;
-					//��ǰ�ֽ����λ=��һ�ֽ����λ
+					//当前字节最低位=下一字节最低位
 					iv[i] |= ((int8_t)iv[i + 1] >= 0) ? 0 : 0x01;
 				}
 				iv[15] <<= 1;
 
-				//iv���λ����c
+				//iv最低位填上c
 				iv[15] |= p[j];
 			}
-			//����plain=E(cipher)
-			plain[i] = p.to_ulong();
+			//设置plain=E(cipher)
+			plain[i] = (uint8_t)p.to_ulong();
 		}
 		return len;
 	}
@@ -398,7 +397,7 @@ size_t MyAES::Encrypt(uint8_t plain[], size_t len)
 			plain[i] ^= iv[0];
 
 			//left shift iv
-			//��λ����λcopy���������overlapping
+			//高位至低位copy，不会产生overlapping
 			memcpy(iv, iv + 1, iv_bytes - 1);
 
 			//the last one = cipher
@@ -412,31 +411,31 @@ size_t MyAES::Encrypt(uint8_t plain[], size_t len)
 		for (size_t i = 0; i < len; ++i)
 		{
 			bitset<8> p(plain[i]);
-			//����ÿ�ֽڣ���λ���д���
+			//对于每字节，逐位进行处理
 			for (size_t j = 0; j < 8; ++j)
 			{
-				//�ݴ�iv
+				//暂存iv
 				memcpy(tempIv, iv, 16);
 
 				EncryptBlock(tempIv);
 
-				//��tempIv���λ���
+				//与tempIv最高位异或
 				p[j] =p[j]^ ((int8_t)tempIv[0] < 0);
 
-				//iv����1λ
+				//iv左移1位
 				for (int i = 0; i < 15; ++i)
 				{
 					iv[i] <<= 1;
-					//��ǰ�ֽ����λ=��һ�ֽ����λ
+					//当前字节最低位=下一字节最低位
 					iv[i] |= ((int8_t)iv[i + 1] < 0) ? 0x01 : 0x00;
 				}
 				iv[15] <<= 1;
 
-				//iv���λ���ϼ��ܺ�iv���λ
+				//iv最低位填上加密后iv最低位
 				iv[15] |= tempIv[iv_bytes-1]&0x01;
 			}
-			//����plain=E(cipher)
-			plain[i] = p.to_ulong();
+			//设置plain=E(cipher)
+			plain[i] = (uint8_t)p.to_ulong();
 		}
 		return len;
 	}
@@ -445,17 +444,17 @@ size_t MyAES::Encrypt(uint8_t plain[], size_t len)
 		uint8_t tempIv[16];
 		for (size_t i = 0; i < len; ++i)
 		{
-			//�ݴ�iv
+			//暂存iv
 			memcpy(tempIv, iv, 16);
 
 			EncryptBlock(tempIv);
 
 			plain[i] ^= tempIv[0];
 
-			//iv����1B
+			//iv左移1B
 			memcpy(iv, iv + 1, iv_bytes - 1);
 
-			//iv���һ�ֽ� = iv���ܺ�����һ�ֽ�
+			//iv最后一字节 = iv加密后的最后一字节
 			iv[iv_bytes - 1] = tempIv[iv_bytes - 1];
 		}
 		return len;
@@ -472,42 +471,41 @@ void MyAES::Decrypt(uint8_t cipher[], size_t len)
 	switch (mode)
 	{
 	case ECB:
-		for (int i = 0; i < block; ++i)
+		for (size_t i = 0; i < block; ++i)
 		{
-			DecryptBlock(cipher + i * block);
+			DecryptBlock(cipher + i * blockSize);
 		}
 		break;
 	case CBC:
 	{
-		for (int i = block - 1; i > 0; --i)
+		uint8_t iv_temp[16];
+		for (size_t i = 0; i < block; ++i)
 		{
-			DecryptBlock(cipher + i * blockSize);
-			//XOR with previous block
-			for (int n = 0; n < blockSize; ++n)
-			{
-				(cipher + i * blockSize)[n] ^= (cipher + (i - 1) * blockSize)[n];
-			}
-		}
+			//暂存当前块，当前块结束后，将暂存的块用于下一个块的解密
+			memcpy(iv_temp, cipher + i * blockSize, 16);
 
-		DecryptBlock(cipher);
-		//XOR with iv
-		for (int n = 0; n < blockSize; ++n)
-		{
-			cipher[n] ^= iv[n];
+			DecryptBlock(cipher + i * blockSize);
+
+			//异或IV
+			for (int n = 0; n < blockSize; ++n)
+				(cipher+i*blockSize)[n] ^= iv[n];
+
+			//将暂存的块存入IV
+			memcpy(iv, iv_temp, 16);
 		}
 		break;
 	}
 
 	case CTR:
 	{
-		static size_t counter = 0;
+		size_t counter = 0;
 		std::default_random_engine e;
 		for (size_t i = 0; i < block; ++i,++counter)
 		{
-			//���������random engine�õ�counter
-			e.seed(counter);
+			//将序号送入random engine得到counter
+			e.seed((uint32_t)counter);
 
-			//����iv���ڴ洢counter
+			//借用iv用于存储counter
 			uint32_t* p64 = (uint32_t*)iv;
 			p64[0] = e();
 			p64[1] = e();
@@ -527,31 +525,31 @@ void MyAES::Decrypt(uint8_t cipher[], size_t len)
 		for (size_t i = 0; i < len; ++i)
 		{
 			bitset<8> p(cipher[i]);
-			//����ÿ�ֽڣ���λ���д���
+			//对于每字节，逐位进行处理
 			for (size_t j = 0; j < 8; ++j)
 			{
 				EncryptBlock(iv);
 
-				//����cipher��ǰλ
+				//保存cipher当前位
 				uint8_t temp = p[j];
 
-				//cipher��ǰλ��iv���λ�����
+				//cipher当前位与iv最高位做异或
 				p[j] = p[j] ^ (iv[0] >> 7);
 
-				//iv����1λ
+				//iv左移1位
 				for (int i = 0; i < 15; ++i)
 				{
 					iv[i] <<= 1;
-					//��ǰ�ֽ����λ=��һ�ֽ����λ
+					//当前字节最低位=下一字节最低位
 					iv[i] |= ((int8_t)iv[i + 1] >= 0) ? 0 : 0x01;
 				}
 				iv[15] <<= 1;
 
-				//iv���λ=cipher��ǰλ
+				//iv最低位=cipher当前位
 				iv[15] |= temp;
 			}
-			//����plain=D(cipher)
-			cipher[i] = p.to_ulong();
+			//设置plain=D(cipher)
+			cipher[i] = (uint8_t)p.to_ulong();
 		}
 		break;
 	}
@@ -564,7 +562,7 @@ void MyAES::Decrypt(uint8_t cipher[], size_t len)
 			cipher[i] ^= iv[0];
 
 			//left shift iv
-			//��λ����λcopy���������overlapping
+			//高位至低位copy，不会产生overlapping
 			memcpy(iv, iv + 1, iv_bytes - 1);
 
 			//the last one = cipher
@@ -578,31 +576,31 @@ void MyAES::Decrypt(uint8_t cipher[], size_t len)
 		for (size_t i = 0; i < len; ++i)
 		{
 			bitset<8> p(cipher[i]);
-			//����ÿ�ֽڣ���λ���д���
+			//对于每字节，逐位进行处理
 			for (size_t j = 0; j < 8; ++j)
 			{
-				//�ݴ�iv
+				//暂存iv
 				memcpy(tempIv, iv, 16);
 
 				EncryptBlock(tempIv);
 
-				//��tempIv���λ���
+				//与tempIv最高位异或
 				p[j] = p[j] ^ ((int8_t)tempIv[0] < 0);
 
-				//iv����1λ
+				//iv左移1位
 				for (int i = 0; i < 15; ++i)
 				{
 					iv[i] <<= 1;
-					//��ǰ�ֽ����λ=��һ�ֽ����λ
+					//当前字节最低位=下一字节最低位
 					iv[i] |= ((int8_t)iv[i + 1] < 0) ? 0x01 : 0x00;
 				}
 				iv[15] <<= 1;
 
-				//iv���λ���ϼ��ܺ�iv���λ
+				//iv最低位填上加密后iv最低位
 				iv[15] |= tempIv[iv_bytes - 1] & 0x01;
 			}
-			//����cipher=E(plain)
-			cipher[i] = p.to_ulong();
+			//设置cipher=E(plain)
+			cipher[i] = (uint8_t)p.to_ulong();
 		}
 		break;
 	}
@@ -611,17 +609,17 @@ void MyAES::Decrypt(uint8_t cipher[], size_t len)
 		uint8_t tempIv[16];
 		for (size_t i = 0; i < len; ++i)
 		{
-			//�ݴ�iv
+			//暂存iv
 			memcpy(tempIv, iv, 16);
 
 			EncryptBlock(tempIv);
 
 			cipher[i] ^= tempIv[0];
 
-			//iv����1B
+			//iv左移1B
 			memcpy(iv, iv + 1, iv_bytes - 1);
 
-			//iv���һ�ֽ� = iv���ܺ�����һ�ֽ�
+			//iv最后一字节 = iv加密后的最后一字节
 			iv[iv_bytes - 1] = tempIv[iv_bytes - 1];
 		}
 		break;

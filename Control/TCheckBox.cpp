@@ -1,4 +1,4 @@
-#include "TCheckBox.h"
+ï»¿#include "TCheckBox.h"
 
 
 TCheckBox::TCheckBox():hIconChecked(NULL),hIconUnChecked(NULL),hBitmapChecked(NULL), hBitmapUnChecked(NULL)
@@ -15,7 +15,7 @@ void TCheckBox::SetChecked(bool bChecked)
 	SendMessage(m_hWnd, BM_SETCHECK, bChecked?BST_CHECKED:BST_UNCHECKED, 0);
 }
 
-void TCheckBox::SetCheckedAndBitmap(bool bChecked)//Í¬Ê±¸Ä±äÍ¼Æ¬
+void TCheckBox::SetCheckedAndBitmap(bool bChecked)//åŒæ—¶æ”¹å˜å›¾ç‰‡
 {
 	SetChecked(bChecked);
 	if (bChecked)
@@ -41,8 +41,8 @@ void TCheckBox::CreateIconCheckBox(HINSTANCE hInst, HWND hParent, int x, int y, 
 	m_hParent = hParent;
 	m_hInst = hInst;
 	m_hWnd = CreateWindow(
-		TEXT("button"),//ÀàÃû£¬¸ü¸Äºó°´Å¥²»ÏÔÊ¾
-		TEXT("°´Å¥"),
+		TEXT("button"),//ç±»åï¼Œæ›´æ”¹åæŒ‰é’®ä¸æ˜¾ç¤º
+		TEXT("æŒ‰é’®"),
 		WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_ICON,//BS_ICON |BS_PUSHBUTTON ,
 		x, y,
 		width, height,
@@ -84,8 +84,8 @@ void TCheckBox::CreateBitmapCheckBox(HINSTANCE hInst, HWND hParent, int x, int y
 	m_hParent = hParent;
 	m_hInst = hInst;
 	m_hWnd = CreateWindow(
-		TEXT("button"),//ÀàÃû£¬¸ü¸Äºó°´Å¥²»ÏÔÊ¾
-		TEXT("°´Å¥"),
+		TEXT("button"),//ç±»åï¼Œæ›´æ”¹åæŒ‰é’®ä¸æ˜¾ç¤º
+		TEXT("æŒ‰é’®"),
 		WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_PUSHLIKE | BS_BITMAP,//BS_Bitmap |BS_PUSHBUTTON ,
 		x, y,
 		width, height,

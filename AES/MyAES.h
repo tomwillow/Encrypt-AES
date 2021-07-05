@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <stdint.h>
 #include <iostream>
 #include <string>
@@ -38,7 +38,7 @@ private:
 	//blockSize = 16
 	const int blockSize;
 public:
-	MyAES(const uint8_t key[], int key_len, int bits = 128,AESMode mode=ECB,const uint8_t iv[]=nullptr,int iv_len=0) :
+	MyAES(const uint8_t *key, int key_len, int bits = 128,AESMode mode=AESMode::ECB,const uint8_t *iv=nullptr,int iv_len=0) :
 		Nb(4),iv_bytes(16), mode(mode), Nk(bits / 32), blockSize(Nb*4)
 	{
 		switch (bits)
@@ -50,16 +50,16 @@ public:
 		case 256:
 			round = 14; break;
 		default:
-			throw std::string("²»Ö§³ÖµÄÎ»¿í:")+std::to_string(bits);
+			throw std::string("ä¸æ”¯æŒçš„ä½å®½:")+std::to_string(bits);
 		}
 
 		if (key_len > Nk*4)
-			throw std::string("ÃÜÔ¿×î´ó³¤¶ÈÎª") + std::to_string(Nk*4) + "Bytes";
+			throw std::string("å¯†é’¥æœ€å¤§é•¿åº¦ä¸º") + std::to_string(Nk*4) + "Bytes";
 
 		if (iv_len > Nk*4)
-			throw std::string("iv×î´ó³¤¶ÈÎª") + std::to_string(iv_bytes) + "Bytes";
+			throw std::string("ivæœ€å¤§é•¿åº¦ä¸º") + std::to_string(iv_bytes) + "Bytes";
 
-		//keyºÍivĞ¡ÓÚNk*4£¬½«Ìî³ä0
+		//keyå’Œivå°äºNk*4ï¼Œå°†å¡«å……0
 		memset(this->key, 0, Nk*4);
 		memcpy_s(this->key, key_len, key, key_len);
 
@@ -77,12 +77,12 @@ public:
 		return blockSize;
 	}
 
-	//Èç¹ûlen²»ÊÇblockÕûÊı±¶£¬Ôò½«
-	//¶àÓà²¿·Ö¼ÓÃÜºó´æÈëremain_buf
-	//·µ»Ø¼ÓÃÜÊıÁ¿
+	//å¦‚æœlenä¸æ˜¯blockæ•´æ•°å€ï¼Œåˆ™å°†
+	//å¤šä½™éƒ¨åˆ†åŠ å¯†åå­˜å…¥remain_buf
+	//è¿”å›åŠ å¯†æ•°é‡
 	size_t Encrypt(uint8_t plain[], size_t len);
 
-	//Èç¹ûlen²»ÊÇblockÕûÊı±¶£¬ÔÚECBºÍCBCÄ£Ê½ÏÂ½«Ö»´¦ÀíÕû¿éÊı¾İ
+	//å¦‚æœlenä¸æ˜¯blockæ•´æ•°å€ï¼Œåœ¨ECBå’ŒCBCæ¨¡å¼ä¸‹å°†åªå¤„ç†æ•´å—æ•°æ®
 	void Decrypt(uint8_t cipher[], size_t len);
 private:
 	static const uint8_t sBox[];

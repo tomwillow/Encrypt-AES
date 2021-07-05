@@ -1,8 +1,12 @@
-#pragma once
+﻿#pragma once
+
+#include <Windows.h>
 
 #include <iostream>
 #include <chrono>
-#include <string>
+
+#include "tstring.h"
+
 class ScopeTime
 {
 private:
@@ -30,23 +34,23 @@ public:
 	int elapsedMilliseconds()
 	{
 		auto m_end = std::chrono::high_resolution_clock::now();
-		return std::chrono::duration_cast<std::chrono::milliseconds>(m_end - m_begin).count();
+		return (int)std::chrono::duration_cast<std::chrono::milliseconds>(m_end - m_begin).count();
 	}
 
-	std::string elapsed()
+	std::tstring elapsed()
 	{
-		std::string ret;
+		std::tstring ret;
 		auto m_end = std::chrono::high_resolution_clock::now();
 		auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(m_end - m_begin).count();
 		auto s = ms / 1000;
 		if (s > 60)
 		{
 			auto m = s / 60;
-			ret += std::to_string(m) + " min ";
+			ret += std::tto_string(m) + TEXT(" min ");
 		}
 		s %= 60;
 		ms %= 1000;
-		ret += std::to_string(s) + "." + std::to_string(ms) + " s";
+		ret += std::tto_string(s) + TEXT(".") + std::tto_string(ms) + TEXT(" s");
 		return ret;
 	}
 };

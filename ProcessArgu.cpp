@@ -1,13 +1,15 @@
-#include "ProcessArgu.h"
+ï»¿#include "ProcessArgu.h"
 
 #include <memory>
-#include <queue>
-#include <thread>
-#include <mutex>
 #include <exception>
+
+#include "MyAES.h"
+#include "MyAESQuick.h"
 
 using namespace std;
 
+//è‡ªå®šä¹‰å¼‚å¸¸ç±»
+//ç›®çš„ä¸ºä¼ é€’hDlgï¼Œå› æ­¤å¼‚å¸¸æ•æ‰æ—¶å°±ä¸éœ€è¦è®¾ç½®å…¨å±€hDlgå˜é‡äº†
 class MyException :public std::exception
 {
 public:
@@ -17,283 +19,216 @@ public:
 	MyException(HWND hDlg, tstring info) :m_hDlg(hDlg), m_info(info) {}
 };
 
+
+//æ›´æ–°è¿›åº¦æ¡
+void ProcessArgu::SetProgress(int per, double velocityKBperS, double remainSecond)
+{
+	//è®¾ç½®æŒ‰é’®æ–‡å­—ä¸ºç™¾åˆ†æ¯”
+	pProgress->SetPos(per);
+	std::tstring sPercent = std::tto_string(per) + TEXT("%");
+	pBtnConvert->SetText(sPercent);
+
+	//è®¾ç½®çª—å£æ ‡é¢˜æ˜¾ç¤ºé€Ÿåº¦
+	TCHAR title[MAX_PATH];
+	_stprintf_s(title, MAX_PATH, TEXT("%s é€Ÿåº¦:%.0f KB/s å½“å‰:%d%% é¢„è®¡å‰©ä½™:%.2f s"), AppTitle, velocityKBperS, per, remainSecond);
+	SetWindowText(hDlg, title);
+};
+
 void DealProc(void* p)try
 {
-	//½«pÒÆ½»ÖÇÄÜÖ¸Õë¹ÜÀí
-	shared_ptr<ProcessArgu> sp((ProcessArgu*)p);
+	//å°†pç§»äº¤æ™ºèƒ½æŒ‡é’ˆç®¡ç†
+	unique_ptr<ProcessArgu> sp((ProcessArgu*)p);
 
-	if (_tfopen_s(&sp->fpp1, sp->fileName1.c_str(), TEXT("rb")))
-		throw MyException(sp->hDlg,tstring(TEXT("´ò¿ª")) + sp->fileName1 + tstring(TEXT("ÎÄ¼ş³ö´í£¬¼ì²éÎÄ¼şÊÇ·ñ±»Õ¼ÓÃ»òÕßÃ»ÓĞÈ¨ÏŞ")));
+	//åˆ›å»ºæ–‡ä»¶å¥æŸ„å¹¶ç§»äº¤æ™ºèƒ½æŒ‡é’ˆç®¡ç†
+	FILE* fp1 = nullptr;
+	FILE* fp2 = nullptr;
+	unique_ptr<FILE*, void(*)(FILE**)> fp1_shared(&fp1, [](FILE** fpp) {fclose(*fpp); });
+	unique_ptr<FILE*, void(*)(FILE**)> fp2_shared(&fp2, [](FILE** fpp) {fclose(*fpp); });
 
+	//æ‰“å¼€è¾“å…¥æ–‡ä»¶
+	if (_tfopen_s(&fp1, sp->fileName1.c_str(), TEXT("rb")))
+		throw MyException(sp->hDlg,tstring(TEXT("æ‰“å¼€")) + sp->fileName1 + tstring(TEXT("æ–‡ä»¶å‡ºé”™ï¼Œæ£€æŸ¥æ–‡ä»¶æ˜¯å¦è¢«å ç”¨æˆ–è€…æ²¡æœ‰æƒé™")));
+
+	//è®¾ç½®åˆå§‹è¿›åº¦
 	sp->SetProgress(0, 0.0, -1);
 
-	//µÃµ½ÎÄ¼ş´óĞ¡
-	fseek(sp->fpp1, 0L, SEEK_END);
-	long fileSize = ftell(sp->fpp1);
-	fseek(sp->fpp1, 0L, SEEK_SET);
+	//å¾—åˆ°æ–‡ä»¶å¤§å°
+	fseek(fp1, 0L, SEEK_END);
+	long long fileSize=_ftelli64(fp1);
+	fseek(fp1, 0L, SEEK_SET);
 
-	//»º³åÇø´óĞ¡
+	//ç¼“å†²åŒºå¤§å°,
+	//***å¿…é¡»ä¸º16çš„å€æ•°ï¼Œå¦åˆ™æ¯æ¬¡è¯»å†™éƒ½ä¼šäº§ç”Ÿç¢ç‰‡ï¼Œæ–‡ä»¶å¤§å°æ ¡éªŒå°†ä¸é€šè¿‡
 	long defBufSize = 0x00010000;//1MB 0x00100000
 
-	//¿ªÊ¼¶ÁĞ´
-	if (_tfopen_s(&sp->fpp2, sp->fileName2.c_str(), TEXT("wb")))
-		throw MyException(sp->hDlg,tstring(TEXT("´ò¿ª")) + sp->fileName2 + tstring(TEXT("ÎÄ¼ş³ö´í£¬¼ì²éÎÄ¼şÊÇ·ñ±»Õ¼ÓÃ»òÕßÃ»ÓĞÈ¨ÏŞ")));
+	//ç”±äº1ä½çš„åˆ†ç»„å¤§å°è¿ç®—ç¼“æ…¢ï¼Œä¸ºäº†è¿›åº¦èƒ½å¤Ÿåˆ·æ–°ï¼Œå°†ç¼“å†²åŒºè°ƒå°
+	if (sp->mode == MyAES::CFB1 || sp->mode == MyAES::OFB1)
+		defBufSize = 0x1000;
 
+	//åˆ†é…ç¼“å†²åŒºå¹¶ç§»äº¤æ™ºèƒ½æŒ‡é’ˆç®¡ç†
+	long bufSize = defBufSize;
+	unsigned char* buf = new unsigned char[bufSize];
+	unique_ptr<unsigned char>buf_shared(buf);
+	if (buf == nullptr)
+		throw MyException(sp->hDlg, tstring(TEXT("åˆ†é…ç¼“å†²åŒºå†…å­˜å¤±è´¥ã€‚è¯·å…³é—­éƒ¨åˆ†ç¨‹åºåå†è¯•ã€‚")));
 
-	FILE* fp1 = sp->fpp1;
-	FILE* fp2 = sp->fpp2;
+	//æ‰“å¼€è¾“å‡ºæ–‡ä»¶
+	if (_tfopen_s(&fp2, sp->fileName2.c_str(), TEXT("wb")))
+		throw MyException(sp->hDlg,tstring(TEXT("æ‰“å¼€")) + sp->fileName2 + tstring(TEXT("æ–‡ä»¶å‡ºé”™ï¼Œæ£€æŸ¥æ–‡ä»¶æ˜¯å¦è¢«å ç”¨æˆ–è€…æ²¡æœ‰æƒé™")));
 
-	//Ğ´ÈëÆ«ÒÆÁ¿
-	long offset = 0;
+	//åˆ†é…keyç©ºé—´
+	size_t key_len = sp->key.length();
+	unsigned char* key = new unsigned char[key_len];
+	unique_ptr<unsigned char> key_shared(key);
+	memcpy(key, sp->key.c_str(), key_len);
 
-	//µÃµ½DESÃÜÔ¿
-	//uint64_t desKey = GetDESKeyByC(sp->desKey.c_str(), sp->desKey.length());
+	//åˆ†é…ivç©ºé—´
+	size_t iv_len = sp->iv.length();
+	unsigned char* iv = new unsigned char[iv_len];
+	unique_ptr<unsigned char> iv_shared(iv);
+	memcpy(iv, sp->iv.c_str(), iv_len);
 
-	//if (sp->encrypt)
-	//{
-	//	//¼ÓÃÜ
-	//	//ÃÜÎÄÎÄ¼ş¸ñÊ½£º[RSA±àÂë¿é´óĞ¡][RSA¼ÓÃÜºóµÄDESÃÜÔ¿][Ô­ÎÄ¼ş´óĞ¡][ÃÜÎÄ]
-	//	//                  4B                  ~84B            4B
-	//	int maxBlockBytes = rsa.getMaxBlockBytes();
-	//	int encodedBlockSize = rsa.getEncodeBlockSize();
-	//	int sz = max(maxBlockBytes, encodedBlockSize);
+	//å®ä¾‹åŒ–åŠ å¯†ç±»ï¼Œå¹¶ç§»äº¤æ™ºèƒ½æŒ‡é’ˆç®¡ç†
+	MyAES* aes = nullptr;
+	if (sp->quick)//é€‰ä¸­æŸ¥è¡¨åŠ é€Ÿï¼Œåˆ™ä½¿ç”¨å¿«é€Ÿç±»
+		aes = new MyAESQuick(key, key_len, sp->bits, (MyAES::AESMode) sp->mode, iv, iv_len);
+	else
+		aes =new MyAES(key, key_len, sp->bits, (MyAES::AESMode) sp->mode, iv, iv_len);
+	unique_ptr<MyAES> aes_shared(aes);
 
-	//	//·ÖÅä¿Õ¼ä
-	//	shared_ptr<unsigned char> encryptedDesKey(new unsigned char[sz]);
-
-	//	//²»½øĞĞ³õÊ¼»¯£¬Ïàµ±ÓÚÇ°8B´æDESÃÜÔ¿£¬ºóÃæËæ»úÌî³ä
-	//	//½âÃÜÊ±»ñµÃÕû¸öÊı¾İ£¬Ö»È¡Ç°8B
-	//	//memset(encryptedDesKey.get(), 0, sz);
-
-	//	//ÃÜÔ¿Ã÷ÎÄ´æÈë»º´æ£¬Ö»Ğ´ÈëÇ°8B
-	//	WriteDESKey(desKey, encryptedDesKey.get());
-
-	//	//Ğ´ÈëRSA±àÂë¿é´óĞ¡
-	//	fwrite(&encodedBlockSize, sizeof(encodedBlockSize), 1, fp2);
-
-	//	//Ğ´ÈëRSAÃÜÎÄ
-	//	rsa.encodeToFile(fp2, maxBlockBytes, encryptedDesKey.get());
-
-	//	//Ğ´ÈëÔ­ÎÄ¼ş´óĞ¡
-	//	fwrite(&fileSize, sizeof(fileSize), 1, fp2);
-
-	//	offset = 4 + encodedBlockSize + 4;
-	//	//ÏÂÃæ¿ÉÒÔĞ´ÈëÃÜÎÄ
-	//}
-	//else
-	//{
-	//	//½âÃÜ
-	//	//¶Á³öRSA±àÂë¿é´óĞ¡
-	//	int encodedBlockSize = 0;
-	//	fread(&encodedBlockSize, sizeof(encodedBlockSize), 1, fp1);
-
-	//	if (encodedBlockSize > fileSize)
-	//		throw MyException(sp->hDlg,string("ÎÄ¼ş¸ñÊ½´íÎó£ºRSA±àÂë¿é´óÓÚÎÄ¼ş´óĞ¡"));
-
-	//	int sz = max(encodedBlockSize, rsa.getMaxBlockBytes());
-
-	//	//·ÖÅä¿Õ¼ä
-	//	shared_ptr<unsigned char> encryptedDesKey(new unsigned char[sz]);
-
-	//	//¶Á³öRSAÃÜÎÄ
-	//	fread(encryptedDesKey.get(), encodedBlockSize, 1, fp1);
-
-	//	//RSA½âÃÜ
-	//	rsa.decode(encryptedDesKey.get(), encryptedDesKey.get(), encodedBlockSize, encodedBlockSize);
-
-	//	//È¡µÃDESÃÜÔ¿
-	//	desKey = GetDESKeyByUC(encryptedDesKey.get(), 8);
-
-	//	//¶Á³öÔ­ÎÄ¼ş´óĞ¡
-	//	fread(&fileSize, sizeof(fileSize), 1, fp1);
-	//	//Ö®ºó¶ÁĞ´³¤¶È¾ùÎªfileSize
-
-	//	offset = 4 + encodedBlockSize + 4;
-	//	//¿ÉÒÔ¿ªÊ¼½âÃÜ
-	//}
-	//ÓÉÓÚfreadµÄ¶ÁÈ¡Æ«ÒÆ£¬Ö®ºó¶ÁÈ¡Êı¾ùÎªfileSize
-	//Ö®ºóĞ´Èë×ÜÁ¿ÎªfileSize
-	sp->dealBytes = fileSize;
-
-	mutex dealMutex, writeMutex;
-
-	//¶ÁÈ¡½á¹¹
-	struct TData
+	//paddingå˜é‡åªç”¨äºè§£å¯†æ—¶åˆ¤æ–­æ˜¯å¦æœ‰å¡«å……
+	long padding = 0;
+	if (sp->encrypt)
 	{
-		long bufSize;
-		unsigned char* buf;
+		//åŠ å¯†å¤´
+		//æ ¼å¼ï¼š4B:[0-3]    8B:[4-11]     4B:[12-15]
+		//å†…å®¹ï¼š  AES        fileSize      padding
+		unsigned char header[16];
+		memset(header, 0, 16);
 
-		long shouldWriteTo;//¸Ã²¿·ÖÓ¦Ğ´ÈëµÄÎ»ÖÃ
-	};
+		//å­˜å…¥æ ‡å¿—ç¬¦â€œAESâ€
+		memcpy(header, "AES", 4);
 
-	queue<TData> qReaded;
+		//åŸæ–‡ä»¶å¤§å°
+		long long* pFileSize = (long long*)&header[4];
+		*pFileSize = fileSize;
 
-	struct TWriteData
+		//paddingå¤§å°
+		long* pPadding = (long*)&header[4+sizeof(fileSize)];
+		*pPadding = 0;
+		if (sp->mode == MyAES::ECB || sp->mode == MyAES::CBC || sp->mode == MyAES::CTR)
+			if (fileSize%16)
+				*pPadding = 16-fileSize % 16;
+
+		//åŠ å¯†æ–‡ä»¶å¤´
+		aes->Encrypt(header,16);
+
+		//å†™å…¥æ–‡ä»¶å¤´
+		fwrite(header, 16, 1, fp2);
+	}
+	else
 	{
-		long pos;//Ğ´ÈëÎ»ÖÃ
-		long writeBytes;//Ğ´ÈëÊıÁ¿
-		unsigned char* buf;
+		//è¯»å‡ºæ–‡ä»¶å¤´å¹¶è§£å¯†
+		unsigned char header[16];
+		size_t read=fread(header, 16, 1, fp1);
+		aes->Decrypt(header, 16);
 
-		size_t remain_len;
-		unsigned char remain_buf[8];
-	};
+		//å–å‡ºæ ‡å¿—ç¬¦â€œAESâ€
+		unsigned char symbol[4];
+		memcpy(symbol, header, 4);
 
-	queue<TWriteData> qWrite;
+		//å‰ä¸‰ä¸ªå­—èŠ‚ä¸æ˜¯AESï¼Œè¯´æ˜bits, mode, key, ivä¸­æœ‰ä¸æ­£ç¡®ä¹‹å¤„
+		//æˆ–è€…æ ¹æœ¬å°±ä¸æ˜¯åŠ å¯†åçš„æ–‡ä»¶
+		if (read==0 || memcmp(symbol, "AES", 3) != 0)
+			throw MyException(sp->hDlg, TEXT("è§£å¯†å¤±è´¥ã€‚æ£€æŸ¥ä½å®½ã€æ¨¡å¼ã€å¯†é’¥æˆ–IVæ˜¯å¦æ­£ç¡®ã€‚"));
 
-	bool readFinish = false;
+		//è¯»å–åŸæ–‡ä»¶å¤§å°
+		long long* pOriginFileSize = (long long*)&header[4];
+		long long originFileSize = *pOriginFileSize;
+		long long encrypedFileSize = 16 + originFileSize;
 
-	auto Reader = [&qReaded, &dealMutex, &offset, &readFinish](FILE* fp, long fileSize, long bufSize, bool encrypt)
-	{
-		long cur = 0;
-		while (1)
-		{
-			//Èç¹ûÎÄ¼şÊ£Óà²¿·ÖĞ¡ÓÚ·Ö¿é£¬Ôò½«·Ö¿éÉèÎªÊ£Óà´óĞ¡
-			bufSize = min(bufSize, fileSize - cur);
+		//è¯»å–paddingå¤§å°
+		long* pPadding = (long*)&header[4+sizeof(fileSize)];
+		padding = *pPadding;
 
-			unsigned char* buf = new unsigned char[bufSize];
+		//ä¿®æ­£æ–‡ä»¶å¤§å°
+		if (padding)
+			encrypedFileSize += padding;
 
-			//±¾´Î¶ÁÈ¡×Ö½ÚÊı
-			long readed = fread(buf, bufSize, 1, fp) * bufSize;
+		//è¿›ä¸€æ­¥è¿›è¡Œæ–‡ä»¶å¤§å°æ ¡éªŒ
+		if (fileSize!= encrypedFileSize)
+			throw MyException(sp->hDlg, TEXT("è¾“å…¥æ–‡ä»¶å¤§å°ä¸æ­£ç¡®ï¼Œå†…å®¹å¯èƒ½å·²ç»è¢«ç ´å"));
 
-			//¶ÁÈ¡ÊıÎª0ËµÃ÷¶ÁÈ¡Íê³É
-			if (readed == 0)
-				break;
-
-			TData data;
-			data.buf = buf;
-			data.bufSize = readed;
-			data.shouldWriteTo = cur + (encrypt ? offset : 0);
-
-			cur += readed;
-
-			//ÉÏËø£¬²¢¼ÓÈëĞè´¦Àí¶ÓÁĞ
-			dealMutex.lock();
-			qReaded.push(data);
-			dealMutex.unlock();
-		}
-		readFinish = true;
-	};
-
-	auto Dealer = [&dealMutex, &qReaded, &writeMutex, &qWrite, &readFinish](bool encrypt)
-	{
-		while (1)
-		{
-			bool qReadedEmpty = false;
-			TData readed;
-			dealMutex.lock();
-			qReadedEmpty = qReaded.empty();
-
-			//¶ÁÍê²¢ÒÑ´¦ÀíÍê£¬ÔòÍË³öÏß³Ì
-			if (readFinish == true && qReadedEmpty)
-			{
-				dealMutex.unlock();
-				return;
-			}
-
-			if (!qReadedEmpty)
-			{
-				//È¡³ö´ı´¦Àí¿é
-				readed = qReaded.front();
-				qReaded.pop();
-			}
-			dealMutex.unlock();
-
-			if (qReadedEmpty)
-				this_thread::sleep_for(100ms);//Î´¶ÁÍê£¬µ«Ã»ÓĞ´ı´¦Àí¿é Ôò×èÈû
-			else
-			{
-				//´ıĞ´Èë¿é
-				TWriteData writeData;
-				writeData.writeBytes = readed.bufSize;
-				writeData.buf = readed.buf;
-				writeData.pos = readed.shouldWriteTo;
-				writeData.remain_len = 0;
-
-				//´¦Àí
-				//if (encrypt)//¼ÓÃÜ
-				//	EncryptData(readed.buf, readed.bufSize, writeData.remain_buf, &(writeData.remain_len), desKey);
-				//else//½âÃÜ
-				//	DecryptData(readed.buf, readed.bufSize, desKey);
-
-				//¼ÓÈë´ıĞ´Èë¶ÓÁĞ
-				writeMutex.lock();
-				qWrite.push(writeData);
-				writeMutex.unlock();
-			}
-		}
-	};
-
-	auto Writer = [&writeMutex, &qWrite, &sp](FILE* fp, long fileSize)
-	{
-		long wrote = 0;
-		while (wrote < fileSize)
-		{
-			bool couldWrite = false;
-			TWriteData writeData;
-
-			writeMutex.lock();
-			if (!qWrite.empty())
-			{
-				writeData = qWrite.front();
-				qWrite.pop();
-				couldWrite = true;
-			}
-			writeMutex.unlock();
-
-			if (couldWrite)
-			{
-				fseek(fp, writeData.pos, SEEK_SET);
-
-				//Ğ´Èë
-				fwrite(writeData.buf, writeData.writeBytes, 1, fp);
-				delete[] writeData.buf;
-
-				if (writeData.remain_len)
-					fwrite(writeData.remain_buf, writeData.remain_len, 1, fp);
-
-				wrote += writeData.writeBytes + writeData.remain_len;
-			}
-			else
-			{
-				//Î´Íê³ÉĞ´Èë£¬µ«ÓÖÃ»ÓĞ´ıĞ´Èë¿é Ôò×èÈû
-				this_thread::sleep_for(100ms);
-			}
-
-			//¸üĞÂ×´Ì¬
-			long percent = 100LL * wrote / fileSize;
-			if (sp->st.flew1sec())//¾àÀëÉÏ´Î¸üĞÂÒÑ³¬¹ı1Ãë
-			{
-				double velocityKBperS = (wrote) / 1024.0 / (sp->st.elapsedMilliseconds() / 1000.0);
-				double remainSecond = (fileSize - wrote) / 1024.0 / velocityKBperS;
-				sp->SetProgress(percent, velocityKBperS, remainSecond);
-			}
-		}
-	};
-
-	thread t_read(Reader, fp1, fileSize, defBufSize, sp->encrypt);
-	t_read.join();
-
-	//È¡µÃCPUÂß¼­ºËÊıÁ¿
-	SYSTEM_INFO sysInfo;
-	GetSystemInfo(&sysInfo);
-	int i = sysInfo.dwNumberOfProcessors;
-	while (i--)
-	{
-		thread t_deal(Dealer, sp->encrypt);
-		t_deal.detach();
+		//å°†æ–‡ä»¶å¤§å°è®¾ç½®ä¸ºå‰¥å»æ–‡ä»¶å¤´çš„å¤§å°ï¼Œ
+		//å¦‚æœæœ‰paddingçš„è¯ï¼Œæ˜¯åŸæ–‡ä»¶åŠ ä¸Špaddingçš„å¤§å°
+		fileSize = encrypedFileSize - 16;
 	}
 
-	thread t_write(Writer, fp2, fileSize);
-	t_write.join();
+	long long cur = 0;
+	while (1)
+	{
+		//å¦‚æœæ–‡ä»¶å‰©ä½™éƒ¨åˆ†å°äºåˆ†å—ï¼Œåˆ™å°†åˆ†å—è®¾ä¸ºå‰©ä½™å¤§å°
+		bufSize = (long)min(bufSize, fileSize - cur);
 
-	//ÉèÖÃ³É¹¦±ê¼Ç£¬sp½«¸´Î»¿Ø¼ş
+		//æœ¬æ¬¡è¯»å–å­—èŠ‚æ•°
+		long readed = fread(buf, bufSize, 1, fp1) * bufSize;
+
+		//è¯»å–æ•°ä¸º0è¯´æ˜è¯»å–å®Œæˆ
+		if (readed == 0)
+			break;
+
+		if (sp->encrypt)
+		{
+			//åŠ å¯†ï¼Œå¹¶è¿”å›æœ¬è½®åŠ å¯†åœ¨bufä¸Šæ›´æ”¹çš„å­—èŠ‚æ•°
+			long deal = aes->Encrypt(buf, readed);
+
+			//å†™å…¥æ•´å—æ•°æ®
+			fwrite(buf, deal, 1, fp2);
+
+			//æ›´æ”¹å­—èŠ‚å’Œé€å…¥å­—èŠ‚ä¸ä¸€è‡´ï¼Œè¯´æ˜æœ‰ç¢ç‰‡
+			if (deal != readed)
+			{
+				//å°†paddingååŠ å¯†çš„ç¢ç‰‡å­˜å…¥
+				fwrite(aes->remain_buf, 16, 1, fp2);
+			}
+		}
+		else
+		{
+			//è§£å¯†
+			aes->Decrypt(buf, readed);
+
+			if (padding && fileSize - cur == bufSize)//å­˜åœ¨paddingå¹¶ä¸”ä¸ºæœ€åä¸€å—
+			{
+				//å°†å¾…å†™å…¥æ•°é‡å‡å»padding
+				readed -= padding;
+			}
+			fwrite(buf, readed, 1, fp2);
+		}
+
+		//curä¸ºå½“å‰å·²å¤„ç†æ•°é‡
+		cur += readed;
+
+		//æ›´æ–°çŠ¶æ€
+		long percent = (long)(100LL * cur / fileSize);
+		if (sp->st.flew1sec())//è·ç¦»ä¸Šæ¬¡æ›´æ–°å·²è¶…è¿‡1ç§’
+		{
+			double velocityKBperS = (cur) / 1024.0 / (sp->st.elapsedMilliseconds() / 1000.0);
+			double remainSecond = (fileSize - cur) / 1024.0 / velocityKBperS;
+			sp->SetProgress(percent, velocityKBperS, remainSecond);
+		}
+	}
+
+	//è®¾ç½®æ€»å¤„ç†æ•°é‡ï¼Œç”¨äºåœ¨æœ€ç»ˆå¼¹æ¡†æ—¶æ˜¾ç¤ºæ€»é€Ÿåº¦
+	sp->dealBytes = fileSize+16;
+
+	//è®¾ç½®æˆåŠŸæ ‡è®°ï¼Œspå°†å¤ä½æ§ä»¶
 	sp->success = true;
 
-	//ÎÄ¼ş¾ä±úÓÉspÊÍ·Å
+	//æ–‡ä»¶å¥æŸ„ï¼Œå„bufå‡ç”±å„è‡ªæ™ºèƒ½æŒ‡é’ˆé‡Šæ”¾
 
-	//sp½«×Ô¶¯ÊÍ·Å
+	//spå°†è‡ªåŠ¨é‡Šæ”¾
 }
 catch (MyException &e)
 {
-	MessageBox(e.m_hDlg, e.m_info.c_str(), TEXT("´íÎó"), MB_OK | MB_ICONERROR);
+	MessageBox(e.m_hDlg, e.m_info.c_str(), TEXT("é”™è¯¯"), MB_OK | MB_ICONERROR);
 }

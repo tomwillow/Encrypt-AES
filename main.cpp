@@ -1,11 +1,20 @@
-#include <Windows.h>
+ï»¿#include <Windows.h>
 #include <vector>
 #include "tstring.h"
-#include <thread>//¶àÏß³Ì
+#include <thread>//å¤šçº¿ç¨‹
 
-//ÆôÓÃÍÏ·ÅĞèÒª
+//å¯ç”¨æ‹–æ”¾éœ€è¦
 #include <shellapi.h> 
 #pragma comment(lib, "shell32.lib")
+
+//æ ·å¼ä½¿ç”¨
+#include <commctrl.h>
+#pragma comment(lib,"comctl32.lib")
+#include "ControlStyle.h"
+
+//dpi
+#include <ShellScalingAPI.h>
+#pragma comment(lib,"Shcore.lib")
 
 #include "TStatic.h"
 #include "TComboBox.h"
@@ -23,21 +32,12 @@
 
 #include "MyAES.h"
 
-//ÑùÊ½Ê¹ÓÃ
-#include <commctrl.h>
-#pragma comment(lib,"comctl32.lib")
-#include "ControlStyle.h"
-
-//dpi
-#include <ShellScalingAPI.h>
-#pragma comment(lib,"Shcore.lib")
-
 using namespace std;
 
 #ifdef _WIN64
-const TCHAR AppTitle[] = TEXT("AES¼ÓÃÜÆ÷x64 v1.0");
+const TCHAR AppTitle[] = TEXT("AESåŠ å¯†å™¨x64 v1.0");
 #else
-const TCHAR AppTitle[] = TEXT("AES¼ÓÃÜÆ÷x32 v1.0");
+const TCHAR AppTitle[] = TEXT("AESåŠ å¯†å™¨x32 v1.0");
 #endif
 
 HINSTANCE hInst;
@@ -60,6 +60,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static HBRUSH hbrBkgnd = NULL;
 	static TTabControl Tab;
 	static TComboBox ComboBoxBits, ComboBoxMode;
 	static TCheckBox CheckBoxQuick;
@@ -70,7 +71,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	static TButton BtnDialog1, BtnDialog2;
 	static TButton BtnEncrypt, BtnDecrypt;
 	static TProgress Progress;
-	static const vector<pair<string, string>> vecFilter = { {"ËùÓĞÎÄ¼ş","*.*"} };
+	static const vector<pair<string, string>> vecFilter = { {"æ‰€æœ‰æ–‡ä»¶","*.*"} };
 	switch (message)
 	{
 	case WM_INITDIALOG:
@@ -79,9 +80,9 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 		//ComboBox
 		ComboBoxBits.LinkControl(hDlg, IDC_COMBO_BITS);
-		ComboBoxBits.AddItem(TEXT("128Î»"), 128);
-		ComboBoxBits.AddItem(TEXT("192Î»"), 192);
-		ComboBoxBits.AddItem(TEXT("256Î»"), 256);
+		ComboBoxBits.AddItem(TEXT("128ä½"), 128);
+		ComboBoxBits.AddItem(TEXT("192ä½"), 192);
+		ComboBoxBits.AddItem(TEXT("256ä½"), 256);
 		ComboBoxBits.SetCurSel(0);
 
 		ComboBoxMode.LinkControl(hDlg, IDC_COMBO_MODE);
@@ -98,8 +99,8 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		Tab.LinkControl(hDlg, IDC_TAB);
 		Tab.SetRectAsParent();
 
-		Tab.AddTabItem(TEXT("¼ÓÃÜ"));
-		Tab.AddTabItem(TEXT("½âÃÜ"));
+		Tab.AddTabItem(TEXT("åŠ å¯†"));
+		Tab.AddTabItem(TEXT("è§£å¯†"));
 
 		Tab.TakeOverControl(0, { &BtnEncrypt });
 		Tab.TakeOverControl(1, { &BtnDecrypt });
@@ -124,30 +125,39 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		BtnDialog1.LinkControl(hDlg, IDC_BTN_DIALOG_1);
 		BtnDialog2.LinkControl(hDlg, IDC_BTN_DIALOG_2);
 
+		//button
+		BtnEncrypt.LinkControl(hDlg, IDC_BTN_CONVERT);
+		BtnDecrypt = BtnEncrypt;
+		BtnDecrypt.SetText(TEXT("è§£å¯†"));
+		BtnDecrypt.SetVisible(false);
+
 		//Progress
 		Progress.LinkControl(hDlg, IDC_PROGRESS);
 
-
-		BtnEncrypt.LinkControl(hDlg, IDC_BTN_CONVERT);
-		BtnDecrypt = BtnEncrypt;
-		BtnDecrypt.SetText(TEXT("½âÃÜ"));
-
-		#ifdef _DEBUG
-		Edit1.SetText(TEXT("C:\\Users\\jiaoshou\\Desktop\\1.zip"));
-		Edit2.SetText(TEXT("C:\\Users\\jiaoshou\\Desktop\\2.zip"));
-		EditKey.SetText(TEXT("ÌìÏÂÎª¹«"));
-		EditIV.SetText(TEXT("Ë¿Öñ¹ÜÏÒ"));
-		#endif
+#ifdef _DEBUG
+		Edit1.SetText(TEXT("C:\\Users\\tomwi\\Desktop\\1.zip"));
+		Edit2.SetText(TEXT("C:\\Users\\tomwi\\Desktop\\2.zip"));
+		EditKey.SetText(TEXT("å¤©ä¸‹ä¸ºå…¬"));
+		EditIV.SetText(TEXT("ä¸ç«¹ç®¡å¼¦"));
+#endif
 
 		return TRUE;
 	}
-	case WM_NOTIFY:
-		return TRUE;
+	case WM_CTLCOLORSTATIC:
+	{
+		//å»æ‰static textçš„ç°è‰²èƒŒæ™¯
+		if (hbrBkgnd == NULL)
+		{
+			hbrBkgnd = CreateSolidBrush(RGB(255, 255, 255));
+		}
+		return (INT_PTR)hbrBkgnd;
+	}
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
 		case IDC_BTN_DIALOG_1:
 		{
+			//è¾“å…¥æ–‡ä»¶æ¡†æµè§ˆæŒ‰é’®
 			static TFileDialog fd(hDlg, vecFilter);
 			tstring fileName1;
 			if (fd.Open(fileName1))
@@ -158,6 +168,7 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		case IDC_BTN_DIALOG_2:
 		{
+			//è¾“å‡ºæ–‡ä»¶æ¡†æµè§ˆæŒ‰é’®
 			static TFileDialog fd(hDlg, vecFilter);
 			tstring fileName2;
 			if (fd.Save(fileName2))
@@ -177,53 +188,59 @@ INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				int mode = ComboBoxMode.GetCurSelData();
 				bool quick = CheckBoxQuick.GetChecked();
 
-				//ÊäÈë¼ì²â
-				tstring key = EditKey.GetText();
-				int key_len = key.length();
-				key_len = key.size();
-				if (key_len == 0 || key_len > bits/8)
-					throw tto_string(bits)+tstring(TEXT("Î»AESÃÜÔ¿±ØĞëÎª1ÖÁ")) + tto_string(bits / 8) + tstring(TEXT("¸ö×Ö·û"));
+				//keyè¾“å…¥æ£€æµ‹
+				string key = to_string(EditKey.GetText());
+				size_t key_len = key.length();
+				if (key_len == 0 || key_len > bits / 8)
+					throw tto_string(bits) + tstring(TEXT("ä½AESå¯†é’¥å¿…é¡»ä¸º1è‡³")) + tto_string(bits / 8) + tstring(TEXT("å­—èŠ‚"));
 
-				//ÎÄ¼şÑéÖ¤
+				//ivè¾“å…¥æ£€æµ‹
+				string iv = to_string(EditIV.GetText());
+				size_t iv_len = iv.length();
+				if (iv_len > 16)
+					throw tstring(TEXT("IVä¸èƒ½å¤§äº16å­—èŠ‚"));
+
+				//æ–‡ä»¶éªŒè¯
 				tstring fileName1 = Edit1.GetText();
 				if (!GetFileExists(fileName1.c_str()))
-					throw tstring(TEXT("ÊäÈëÎÄ¼ş²»´æÔÚ"));
+					throw tstring(TEXT("è¾“å…¥æ–‡ä»¶ä¸å­˜åœ¨"));
 
 				tstring fileName2 = Edit2.GetText();
 				if (fileName2.empty())
-					throw tstring(TEXT("Êä³öÎÄ¼ş²»ÄÜÎª¿Õ"));
+					throw tstring(TEXT("è¾“å‡ºæ–‡ä»¶ä¸èƒ½ä¸ºç©º"));
 
 				if (fileName1 == fileName2)
-					throw tstring(TEXT("ÊäÈë/Êä³öÎÄ¼ş²»ÄÜÏàÍ¬"));
+					throw tstring(TEXT("è¾“å…¥/è¾“å‡ºæ–‡ä»¶ä¸èƒ½ç›¸åŒ"));
 
+				//åˆ›å»ºè¿›ç¨‹å¯¹è±¡
+				//paå°†è¢«ç§»äº¤ç»™DealProcç®¡ç†
+				ProcessArgu* pa = new ProcessArgu(
+					AppTitle,
+					encrypt,
+					bits, mode, quick, key, iv,
+					fileName1, fileName2,
+					hDlg, &Progress,
+					encrypt ? &BtnEncrypt : &BtnDecrypt,
+					{ &Tab ,&ComboBoxBits,&ComboBoxMode,&CheckBoxQuick,
+					&EditKey,&EditIV,
+					&Edit1, &Edit2, &BtnDialog1, &BtnDialog2,
+					&BtnEncrypt,&BtnDecrypt, });
 
-
-				//ProcessArgu* pa = new ProcessArgu(
-				//	AppTitle,
-				//	encrypt,
-				//	fileName1, fileName2, keyFileName,
-				//	desCipher,
-				//	hDlg, &Progress,
-				//	&CheckBox, &Edit2, &BtnDialog2, encrypt ? &BtnEncrypt : &BtnDecrypt,
-
-				//	{ &Edit1, &Edit2,&EditRSAPublic,&EditRSAPrivate,&EditDES,
-				//	&BtnGenRSAKey,
-				//	&BtnEncrypt,&BtnDecrypt,  &BtnDialog1, &BtnDialog2,&BtnDialogRSA,
-				//	&CheckBox,&Tab });
-
-				//thread t(DealProc, pa);
-				//t.detach();
+				//å¼€å¤šçº¿ç¨‹é¿å…ç•Œé¢é˜»å¡
+				thread t(DealProc, pa);
+				t.detach();
 
 			}//end of try
 			catch (tstring & err)
 			{
-				MessageBox(hDlg, err.c_str(), TEXT("´íÎó"), MB_OK | MB_ICONERROR);
+				MessageBox(hDlg, err.c_str(), TEXT("é”™è¯¯"), MB_OK | MB_ICONERROR);
 			}
 			break;
 		}
 		}
 		return TRUE;
 	case WM_CLOSE:
+		DeleteObject(hbrBkgnd);
 		EndDialog(hDlg, 0);
 		return TRUE;
 	}

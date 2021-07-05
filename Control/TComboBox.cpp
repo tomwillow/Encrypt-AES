@@ -1,6 +1,8 @@
-#include "TComboBox.h"
+﻿#include "TComboBox.h"
 
 #include <windowsx.h>
+
+using namespace std;
 
 void TComboBox::AddItem(const tstring s, int value)
 {

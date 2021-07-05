@@ -1,5 +1,7 @@
-#include "TTabControl.h"
+﻿#include "TTabControl.h"
 
+#include <Windows.h>
+#include <tchar.h>
 #include <algorithm>
 #include <CommCtrl.h>
 

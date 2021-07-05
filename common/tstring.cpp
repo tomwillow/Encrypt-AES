@@ -1,6 +1,7 @@
-#include "tstring.h"
+﻿#include "tstring.h"
+#include <Windows.h>
 
-std::wstring stringToWstring(const std::string& str)
+std::wstring string2wstring(const std::string& str)
 {
 	LPCSTR pszSrc = str.c_str();
 	int nLen = MultiByteToWideChar(CP_ACP, 0, pszSrc, -1, NULL, 0);
@@ -19,7 +20,7 @@ std::wstring stringToWstring(const std::string& str)
 	return wstr;
 }
 
-std::string wstringToString(const std::wstring& wstr)
+std::string wstring2string(const std::wstring& wstr)
 {
 	LPCWSTR pwszSrc = wstr.c_str();
 	int nLen = WideCharToMultiByte(CP_ACP, 0, pwszSrc, -1, NULL, 0, NULL, NULL);
@@ -36,4 +37,14 @@ std::string wstringToString(const std::wstring& wstr)
 	pszDst = NULL;
 
 	return str;
+}
+
+std::string to_string(const std::wstring& ws)
+{
+	return wstring2string(ws);
+}
+
+std::string to_string(const std::string& s)
+{
+	return s;
 }

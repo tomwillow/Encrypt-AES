@@ -1,4 +1,4 @@
-#include "MyAESQuick.h"
+﻿#include "MyAESQuick.h"
 
 #include "gmult.h"
 
@@ -22,7 +22,6 @@ void MyAESQuick::EncryptBlock(uint8_t state[])
 
 void MyAESQuick::DecryptBlock(uint8_t state[])
 {
-	KeyExpansion(key, expandedKey);
 
 	InvFinalRound(state, expandedKey + Nb * round);
 
@@ -35,7 +34,7 @@ void MyAESQuick::DecryptBlock(uint8_t state[])
 
 //for 128 bits: size of state = 16
 //for 256 bits: size of state = 32
-void MyAESQuick::QuickEncryptPrepare()
+void MyAESQuick::Prepare()
 {
 	KeyExpansion(key, expandedKey);
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "TControl.h"
 #include <unordered_map>
 
@@ -8,7 +8,7 @@ class TComboBox :
 private:
 	std::vector<int> items;
 public:
-	void AddItem(const tstring s, int value);
+	void AddItem(const std::tstring s, int value);
 
 	int GetCurSelData();
 

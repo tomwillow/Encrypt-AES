@@ -37,20 +37,20 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -72,6 +72,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>aes;common;control;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>aes;common;control;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>aes;common;control;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>aes;common;control;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName) $(Platform)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -104,6 +114,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -128,13 +140,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AES\gmult.h" />
+    <ClInclude Include="AES\MyAES.h" />
+    <ClInclude Include="AES\MyAESQuick.h" />
     <ClInclude Include="common\FileFunction.h" />
+    <ClInclude Include="common\ScopeTime.h" />
     <ClInclude Include="ProcessArgu.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="common\ScopeTime.h" />
     <ClInclude Include="common\tstring.h" />
     <ClInclude Include="Control\TButton.h" />
-    <ClInclude Include="common\tchar_head.h" />
     <ClInclude Include="Control\TCheckBox.h" />
     <ClInclude Include="Control\TControl.h" />
     <ClInclude Include="Control\TDropEdit.h" />
@@ -142,13 +156,15 @@
     <ClInclude Include="Control\TProgress.h" />
     <ClInclude Include="Control\TStatic.h" />
     <ClInclude Include="Control\TTabControl.h" />
-    <ClInclude Include="common\TTransfer.h" />
     <ClInclude Include="Control\TComboBox.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Encrypt.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AES\gmult.cpp" />
+    <ClCompile Include="AES\MyAES.cpp" />
+    <ClCompile Include="AES\MyAESQuick.cpp" />
     <ClCompile Include="common\FileFunction.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ProcessArgu.cpp" />
@@ -161,7 +177,6 @@
     <ClCompile Include="Control\TProgress.cpp" />
     <ClCompile Include="Control\TStatic.cpp" />
     <ClCompile Include="Control\TTabControl.cpp" />
-    <ClCompile Include="common\TTransfer.cpp" />
     <ClCompile Include="Control\TComboBox.cpp" />
   </ItemGroup>
   <ItemGroup>

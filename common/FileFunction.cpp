@@ -1,13 +1,73 @@
-#include "FileFunction.h"
+﻿#include "FileFunction.h"
+#include <tchar.h>
 
 using namespace std;
 
-//����index=1��õ������ļ���
-//�ɹ�ȡ�÷���true 
+void TFileDialog::SetFilter(std::vector<std::pair<std::string, std::string>> vecFilter)
+{
+	//lpstrFilter格式：TEXT("机构设计文件(*.lml)\0*.lml\0\0")
+	int i = 0;
+	for (auto& pr : vecFilter)
+	{
+		for (auto c : pr.first)
+			szFilter[i++] = c;
+		szFilter[i++] = 0;
+		for (auto c : pr.second)
+			szFilter[i++] = c;
+		szFilter[i++] = 0;
+	}
+	szFilter[i++] = 0;
+	ofn.lpstrFilter = szFilter;//两个\0表示结束
+}
+
+void TFileDialog::SetTitle(std::tstring title)
+{
+	_tcscpy_s(szTitle, title.length() + 1, title.c_str());
+	ofn.lpstrFileTitle = szTitle;
+}
+
+bool TFileDialog::Open(std::tstring& fileName)
+{
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;//限定文件必须存在
+	if (::GetOpenFileName(&ofn))
+	{
+		fileName = ofn.lpstrFile;
+		return true;
+	}
+	return false;
+}
+
+void TFileDialog::SetszFile(const std::tstring& s)
+{
+	_tcscpy_s(szFile, s.c_str());
+}
+
+std::tstring TFileDialog::GetszFile()
+{
+	return std::tstring(szFile);
+}
+
+bool TFileDialog::Save(std::tstring& fileName)
+{
+	ofn.Flags = OFN_PATHMUSTEXIST;
+
+	//设为空可以自动加上选择的后缀名，否则无论选什么后缀，
+	//只要没有输入.txt这种，都是无后缀
+	ofn.lpstrDefExt = TEXT("");
+	if (::GetSaveFileName(&ofn))
+	{
+		fileName = ofn.lpstrFile;
+		return true;
+	}
+	return false;
+}
+
+//传入index=1则得到传入文件名
+//成功取得返回true 
 bool GetCommandLineByIndex(int index, TCHAR *assigned)
 {
 	int iCmdLineCount = -1;
-	int len = _tcslen(GetCommandLine());
+	size_t len = _tcslen(GetCommandLine());
 	TCHAR *origin = new TCHAR[len + 1];
 	TCHAR *s = origin;
 	_tcscpy_s(s,len, GetCommandLine());
@@ -16,7 +76,7 @@ bool GetCommandLineByIndex(int index, TCHAR *assigned)
 	while ((s = _tcschr(s, TEXT('\"'))) != NULL)
 	{
 		s++;
-		if (inchar == false)//����
+		if (inchar == false)//开端
 		{
 			start = s;
 			inchar = true;
@@ -58,7 +118,7 @@ bool GetFileExists(const TCHAR filename[])
 	}
 }
 
-//·�����ļ���������׺����׺
+//路径，文件名不带后缀，后缀
 vector<string> SplitPath(const std::string& s)
 {
 	vector<string> ret;
@@ -78,7 +138,7 @@ vector<string> SplitPath(const std::string& s)
 	return ret;
 }
 
-//�ļ���������׺����׺
+//文件名不带后缀，后缀
 vector<string> SplitFileName(const std::string& s)
 {
 	auto dot = s.find_last_of('.');

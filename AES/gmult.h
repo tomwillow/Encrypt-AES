@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
  * Advanced Encryption Standard
  * @author Dani Huertas

@@ -48,19 +48,22 @@
     <ClInclude Include="common\FileFunction.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="common\tchar_head.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="common\TTransfer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="common\ScopeTime.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="common\tstring.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Control\TComboBox.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AES\gmult.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AES\MyAES.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AES\MyAESQuick.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="common\ScopeTime.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -98,13 +101,19 @@
     <ClCompile Include="common\FileFunction.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="common\TTransfer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="common\tstring.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Control\TComboBox.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AES\gmult.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AES\MyAES.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AES\MyAESQuick.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

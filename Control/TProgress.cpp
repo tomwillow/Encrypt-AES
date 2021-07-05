@@ -1,4 +1,4 @@
-#include "TProgress.h"
+﻿#include "TProgress.h"
 #include <commctrl.h>
 
 void TProgress::SetPos(int pos)

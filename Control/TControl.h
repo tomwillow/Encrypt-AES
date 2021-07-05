@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <Windows.h>
 #include <vector>
 #include <unordered_map>
@@ -8,11 +8,14 @@ class TControl
 {
 private:
 	bool bCanAcceptDrag;
-	std::unordered_map<UINT, void(*)(void)> msgDealer;
+
+	using PMsgDealer = LRESULT(*)(HWND hWnd,WPARAM wParam, LPARAM lParam);
+	std::unordered_map<UINT,PMsgDealer > msgDealer;
+
 	HFONT m_hFont;
 	static LRESULT CALLBACK subControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	std::vector<tstring> PreDrop(WPARAM wParam) const;
+	std::vector<std::tstring> PreDrop(WPARAM wParam) const;
 public:
 	//LONG m_iWidth, m_iHeight;
 	TControl();
@@ -22,7 +25,7 @@ public:
 
 	HWND GetHWND();
 
-	void LinkControl(HWND hwnd);
+	void LinkControl(HWND hWndCtrl);
 	void LinkControl(HWND hDlg, int id);
 
 	RECT GetClientRect() const;
@@ -37,19 +40,19 @@ public:
 	void SetDefaultGuiFont();
 	void SetFont(TCHAR FontName[], int FontSize);
 
-	void SetText(const tstring &s);
-	void CDECL SetText(const TCHAR szFormat[], ...);//ÉèÖÃÄÚÈİ
+	void SetText(const std::tstring &s);
+	void CDECL SetText(const TCHAR szFormat[], ...);//è®¾ç½®å†…å®¹
 	void GetText(TCHAR text[]);
-	TCHAR* GetTCHAR();//·µ»ØÖµÓÉTControl×Ô¼º¸ºÔğÊÍ·Å
-	tstring GetText();
-	int GetLength();//»ñÈ¡×Ö·û´®³¤¶È	
+	TCHAR* GetTCHAR();//è¿”å›å€¼ç”±TControlè‡ªå·±è´Ÿè´£é‡Šæ”¾
+	std::tstring GetText();
+	int GetLength();//è·å–å­—ç¬¦ä¸²é•¿åº¦	
 
 	RECT GetPosition() const;
-	void SetPosition(int x, int y, int width, int height);//ÉèÖÃ´óĞ¡¼°Î»ÖÃ
-	void SetPosition(RECT rect);//ÉèÖÃ´óĞ¡¼°Î»ÖÃ
+	void SetPosition(int x, int y, int width, int height);//è®¾ç½®å¤§å°åŠä½ç½®
+	void SetPosition(RECT rect);//è®¾ç½®å¤§å°åŠä½ç½®
 	void SetPositionOnlyOrigin(const RECT &rect);
 
-	void SetVisible(bool bShow);//ÉèÖÃ¿É¼ûĞÔ
+	void SetVisible(bool bShow);//è®¾ç½®å¯è§æ€§
 	bool GetVisible();
 
 	void SetDouble(double d);
@@ -62,15 +65,15 @@ public:
 
 	void SetDragAccept(bool bCanAcceptDrop);
 
-	void RegisterMessage(UINT uMsg,void(*fun)(void));
+	void RegisterMessage(UINT uMsg,PMsgDealer pFun);
 protected:
 	HWND m_hParent;
 	HWND m_hWnd;
 	HINSTANCE m_hInst;
 	TCHAR *Text;
-	void RegisterProc();//´´½¨´°¿Úºó×¢²á
+	void RegisterProc();//åˆ›å»ºçª—å£åæ³¨å†Œ
 
-	virtual LRESULT WndProc(WNDPROC wndproc, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);//ĞéÄâÏûÏ¢´¦Àíº¯Êı£¬¿É¸²¸Ç
+	virtual LRESULT WndProc(WNDPROC wndproc, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);//è™šæ‹Ÿæ¶ˆæ¯å¤„ç†å‡½æ•°ï¼Œå¯è¦†ç›–
 
-	virtual void DropProc(const std::vector<tstring>& dropFiles);
+	virtual LRESULT DropProc(const std::vector<std::tstring>& dropFiles);
 };

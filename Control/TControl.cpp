@@ -1,11 +1,10 @@
-#pragma once
+ï»¿#pragma once
 
-#include "tchar_head.h"
 #include <stdio.h>//_vsnprintf_s
 #include <vector>
-#include "TControl.h"
+#include <tchar.h>
 
-#include "TTransfer.h"
+#include "TControl.h"
 
 using namespace std;
 
@@ -58,7 +57,7 @@ TControl& TControl::operator=(const TControl& control)
 }
 
 
-//½öÊ¹ÓÃx,y×ø±ê£¬width,heightÊ¹ÓÃÔ­´óĞ¡
+//ä»…ä½¿ç”¨x,yåæ ‡ï¼Œwidth,heightä½¿ç”¨åŸå¤§å°
 void TControl::SetPositionOnlyOrigin(const RECT &rect)
 {
 	RECT rc;
@@ -66,19 +65,19 @@ void TControl::SetPositionOnlyOrigin(const RECT &rect)
 	SetPosition(rect.left, rect.top, rc.right, rc.bottom);
 }
 
-//rightºÍbottom±£´æµÄÊÇ¿íºÍ¸ß
+//rightå’Œbottomä¿å­˜çš„æ˜¯å®½å’Œé«˜
 void TControl::SetRect(RECT &rect)
 {
 	::MoveWindow(m_hWnd, rect.left,rect.top,  rect.right, rect.bottom, true);
 }
 
-//¶Ô½Çµã×ø±ê
+//å¯¹è§’ç‚¹åæ ‡
 void TControl::SetRect(int x1, int y1, int x2, int y2)
 {
 	::MoveWindow(m_hWnd, x1, y1, x2 - x1, y2 - y1, true);
 }
 
-//·µ»Ø£ºÏà¶ÔÓÚ¸¸´°¿ÚµÄ x1, y1, x2, y2
+//è¿”å›ï¼šç›¸å¯¹äºçˆ¶çª—å£çš„ x1, y1, x2, y2
 RECT TControl::GetPosition() const
 {
 	RECT rc = GetWindowRect();
@@ -95,7 +94,7 @@ void TControl::SetPosition(int x, int y, int width, int height)
 	//::SetWindowPos(m_hWnd, HWND_TOP, x, y, width, height, 0);//SWP_SHOWWINDOW
 }
 
-//rectÖĞ¸÷Öµ¾ùÎª×ø±ê
+//rectä¸­å„å€¼å‡ä¸ºåæ ‡
 void TControl::SetPosition(RECT rect)
 {
 	::MoveWindow(m_hWnd, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, true);
@@ -106,20 +105,20 @@ vector<tstring> TControl::PreDrop(WPARAM wParam) const
 {
 	vector<tstring> ret;
 	HDROP hDrop = (HDROP)wParam;
-	UINT nFileNum = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0); // ÍÏ×§ÎÄ¼ş¸öÊı
+	UINT nFileNum = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0); // æ‹–æ‹½æ–‡ä»¶ä¸ªæ•°
 	TCHAR strFileName[MAX_PATH];
-	for (int i = 0; i < nFileNum; i++)
+	for (UINT i = 0; i < nFileNum; i++)
 	{
-		DragQueryFile(hDrop, i, strFileName, MAX_PATH);//»ñµÃÍÏÒ·µÄÎÄ¼şÃû
+		DragQueryFile(hDrop, i, strFileName, MAX_PATH);//è·å¾—æ‹–æ›³çš„æ–‡ä»¶å
 		ret.push_back(strFileName);
 	}
-	DragFinish(hDrop);      //ÊÍ·ÅhDrop
+	DragFinish(hDrop);      //é‡Šæ”¾hDrop
 	return ret;
 }
 
-void TControl::DropProc(const std::vector<tstring>& dropFiles)
+LRESULT TControl::DropProc(const std::vector<tstring>& dropFiles)
 {
-
+	return TRUE;
 }
 
 LRESULT CALLBACK TControl::subControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -138,7 +137,7 @@ LRESULT CALLBACK TControl::subControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 		if (uMsg == WM_DROPFILES)
 		{
 			vector<tstring> dropFiles=pControl->PreDrop(wParam);
-			pControl->DropProc(dropFiles);
+			return pControl->DropProc(dropFiles);
 		}
 		else
 			return pControl->WndProc((WNDPROC)oldProc, hWnd, uMsg, wParam, lParam);
@@ -152,24 +151,24 @@ void TControl::LinkControl(HWND hDlg, int id)
 	LinkControl(GetDlgItem(hDlg, id));
 }
 
-void TControl::LinkControl(HWND hwndControl)//Á´½Óµ½ÒÑÓĞ¿Ø¼ş£¨ÓÃÓÚ¶Ô»°¿òÖĞ£©
+void TControl::LinkControl(HWND hWndCtrl)//é“¾æ¥åˆ°å·²æœ‰æ§ä»¶ï¼ˆç”¨äºå¯¹è¯æ¡†ä¸­ï¼‰
 {
 	m_hInst = GetModuleHandle(NULL);
-	m_hParent = GetParent(hwndControl);
-	m_hWnd = hwndControl;
+	m_hParent = GetParent(hWndCtrl);
+	m_hWnd = hWndCtrl;
 
-	//²âÊÔ·¢ÏÖsubControlProcÖĞ»á·´¸´´¦Àí uMsg=0x87, WM_GETDLGCODE ÏûÏ¢£¬
-	//²éÑ¯ https://blog.csdn.net/amwfnyq/article/details/5612289 ÃèÊöÊÇ¿Ø¼ş
-	//Ã»ÓĞ WS_EX_CONTROLPARENT ÑùÊ½µ¼ÖÂËÀÑ­»·
+	//æµ‹è¯•å‘ç°subControlProcä¸­ä¼šåå¤å¤„ç† uMsg=0x87, WM_GETDLGCODE æ¶ˆæ¯ï¼Œ
+	//æŸ¥è¯¢ https://blog.csdn.net/amwfnyq/article/details/5612289 æè¿°æ˜¯æ§ä»¶
+	//æ²¡æœ‰ WS_EX_CONTROLPARENT æ ·å¼å¯¼è‡´æ­»å¾ªç¯
 	//LONG style = GetWindowLong(m_hWnd, GWL_EXSTYLE);
 	//SetWindowLong(m_hWnd, GWL_EXSTYLE, style | WS_EX_CONTROLPARENT);
 
-	//ÔÙ´Î²âÊÔ·¢ÏÖÊÇÁ½¸öHWND×¢²áµ½Í¬Ò»¸öclassµ¼ÖÂËÀÑ­»·
+	//å†æ¬¡æµ‹è¯•å‘ç°æ˜¯ä¸¤ä¸ªHWNDæ³¨å†Œåˆ°åŒä¸€ä¸ªclasså¯¼è‡´æ­»å¾ªç¯
 
 	RegisterProc();
 }
 
-void TControl::RegisterProc()//´´½¨´°¿Úºó×¢²á
+void TControl::RegisterProc()//åˆ›å»ºçª—å£åæ³¨å†Œ
 {
 #ifdef _WIN64
 	SetWindowLongPtr(m_hWnd, GWLP_USERDATA, (LONG_PTR)this);
@@ -182,12 +181,12 @@ void TControl::RegisterProc()//´´½¨´°¿Úºó×¢²á
 	SetProp(m_hWnd, TEXT("oldProc"), oldProc);
 }
 
-LRESULT TControl::WndProc(WNDPROC wndproc, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)//ĞéÄâÏûÏ¢´¦Àíº¯Êı£¬¿ÉÖØÔØ
+LRESULT TControl::WndProc(WNDPROC wndproc, HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)//è™šæ‹Ÿæ¶ˆæ¯å¤„ç†å‡½æ•°ï¼Œå¯é‡è½½
 {
 	auto it = msgDealer.find(uMsg);
 	if (it != msgDealer.end())
 	{
-		it->second();
+		it->second(hWnd,wParam,lParam);
 	}
 	return CallWindowProc(wndproc, hWnd, uMsg, wParam, lParam);
 }
@@ -260,7 +259,7 @@ void CDECL TControl::SetText(const TCHAR szFormat[], ...)
 
 void TControl::GetText(TCHAR text[])
 {
-	::GetWindowText(m_hWnd, text, GetLength() + 1);//²»ÖªµÀÎªÊ²Ã´Òª¼Ó1²ÅÈ¡µÃÈ«
+	::GetWindowText(m_hWnd, text, GetLength() + 1);//ä¸çŸ¥é“ä¸ºä»€ä¹ˆè¦åŠ 1æ‰å–å¾—å…¨
 }
 
 tstring TControl::GetText()
@@ -300,11 +299,10 @@ bool TControl::GetEnable()
 	return (bool)IsWindowEnabled(m_hWnd);
 }
 
-//×Ô¶¯È¥µôĞ¡ÊıÄ©Î²0£¬×î¶àÏÔÊ¾6Î»
+//è‡ªåŠ¨å»æ‰å°æ•°æœ«å°¾0ï¼Œæœ€å¤šæ˜¾ç¤º6ä½
 void TControl::SetDouble(double d)
 {
-	TCHAR s[64];
-	TTransfer::double2TCHAR_AutoTrim0(d, s);
+	tstring s(tto_string(d));
 	SetText(s);
 }
 
@@ -313,7 +311,7 @@ double TControl::GetDouble()
 	return _tcstod(GetTCHAR(), NULL);
 }
 
-//»ñµÃ¹¤¾ßÀ¸´óĞ¡
+//è·å¾—å·¥å…·æ å¤§å°
 RECT TControl::GetClientRect() const
 {
 	RECT rect;
@@ -334,9 +332,9 @@ void TControl::SetDragAccept(bool bCanAcceptDrop)
 	DragAcceptFiles(m_hWnd, bCanAcceptDrop);
 }
 
-void TControl::RegisterMessage(UINT uMsg,void(*fun)(void))
+void TControl::RegisterMessage(UINT uMsg,PMsgDealer pFunc)
 {
-	msgDealer[uMsg] = fun;
+	msgDealer[uMsg] = pFunc;
 }
 
 void TControl::SetID(int id)
