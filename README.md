@@ -6,7 +6,7 @@ Origin url: https://github.com/tomwillow/Encrypt-AES
 
 # 截图 Snapshot
 
-![](snapshot/snapshot.png)
+![Here is a picture.](snapshot/snapshot.png)
 
 # 特性 Features
 
